@@ -84,17 +84,17 @@ const currentImage = ref(``) // 當前顯示的主圖
 const selectedSize = ref(``) // 選中的尺寸
 const selectedColor = ref(``) // 選中的顏色
 
-// 設置當前顯示的主圖
-const setCurrentImage = (imageSrc) => {
-  currentImage.value = imageSrc
-}
-
-// 初始化顯示主圖
+// 初始化-預設顯示主圖
 const initMainImage = () => {
-  const mainImage = props.images.find((img) => img.isMain) || props.images[0]
+  const mainImage = props.images.find((img) => img.isMain)
   if (mainImage) {
     currentImage.value = mainImage.src
   }
+}
+
+// 設置選擇顯示的圖片
+const setCurrentImage = (imageSrc) => {
+  currentImage.value = imageSrc
 }
 
 // 選擇尺寸
