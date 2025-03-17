@@ -160,7 +160,7 @@ watch(
 
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px #0000001a;
       }
     }
   }
@@ -202,7 +202,7 @@ watch(
 
   .discount-tag {
     background-color: #e53e3e;
-    color: white;
+    color: #fff;
     padding: 2px 8px;
     border-radius: 4px;
     font-size: 0.875rem;
@@ -243,7 +243,7 @@ watch(
 
       &.active {
         background-color: #8c6d62;
-        color: white;
+        color: #fff;
         border-color: #8c6d62;
       }
     }
@@ -263,98 +263,8 @@ watch(
       &.active {
         border-color: #4a5568;
         box-shadow:
-          0 0 0 2px white,
+          0 0 0 2px #fff,
           0 0 0 4px #8c6d62;
-      }
-    }
-  }
-
-  .quantity-selector {
-    h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0 0 8px 0;
-      color: #4a5568;
-    }
-
-    .quantity-control {
-      display: flex;
-      align-items: center;
-
-      .quantity-btn {
-        width: 36px;
-        height: 36px;
-        background: #f7fafc;
-        border: 1px solid #e2e8f0;
-        font-size: 1.2rem;
-        cursor: pointer;
-
-        &:first-child {
-          border-radius: 4px 0 0 4px;
-        }
-
-        &:last-child {
-          border-radius: 0 4px 4px 0;
-        }
-      }
-
-      .quantity-input {
-        width: 50px;
-        height: 36px;
-        border: 1px solid #e2e8f0;
-        border-left: none;
-        border-right: none;
-        text-align: center;
-        font-size: 1rem;
-      }
-    }
-  }
-
-  .action-buttons {
-    display: flex;
-    gap: 12px;
-    margin-top: 12px;
-
-    button {
-      padding: 12px 24px;
-      border-radius: 4px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .add-to-cart {
-      background-color: white;
-      border: 1px solid #8c6d62;
-      color: #8c6d62;
-      flex: 2;
-
-      &:hover {
-        background-color: #f8f4f2;
-      }
-    }
-
-    .buy-now {
-      background-color: #8c6d62;
-      border: 1px solid #8c6d62;
-      color: white;
-      flex: 3;
-
-      &:hover {
-        background-color: #7c5d52;
-      }
-    }
-
-    .add-to-wishlist {
-      width: 44px;
-      padding: 0;
-      background-color: white;
-      border: 1px solid #e2e8f0;
-      color: #a0aec0;
-
-      &:hover {
-        color: #e53e3e;
-        border-color: #e53e3e;
       }
     }
   }

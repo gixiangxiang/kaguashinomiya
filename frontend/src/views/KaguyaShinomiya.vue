@@ -5,24 +5,33 @@
     :product="selectedProduct"
     :images="getProductImages(selectedProduct.id)"
   />
-  <!-- 產品卡片區 -->
+  <ProductList :products="products" :images="allProductImages" />
   <!-- 新增產品彈跳視窗 -->
 </template>
 
 <script setup>
 import Header from '../components/Header.vue'
 import ProductDisplay from '../components/ProductDisplay.vue'
+import ProductList from '../components/ProductList.vue'
 
 import { ref, computed } from 'vue'
 
 const products = ref([
   {
     id: 1,
-    name: '四宮輝夜短T',
-    price: 1580,
-    description: `這款精緻日式和服採用傳統工藝製作，由100%高品質絲綢材質打造。每一件都經過專業匠人手工縫製，細節處理精良，完美展現日本傳統美學。適合各種正式場合穿著，也是收藏和體驗日本文化的絕佳選擇。`,
+    name: '天才的戀愛戰爭T-shirt 四宮輝夜',
+    price: 1100,
+    description: `戀愛，如同戰爭，只有率先讓對方告白的人，才能獲得勝利。這款 T-Shirt 以四宮輝夜為靈感，完美呈現她的優雅與聰慧，讓你穿上後彷彿置身於秀知院學園的戀愛戰場。`,
     size: ['S', 'M', 'L', 'XL'],
     color: ['#FFFFFF', '#d4a9a3', '#8c6d62', '#2d4356'],
+  },
+  {
+    id: 2,
+    name: '86不存在的戰區T-shirt 蕾娜',
+    price: 780,
+    description: `「即使相隔千里，我仍會聽見你的聲音。」——指揮官蕾娜，以她無可撼動的信念，成為 86 小隊的燈塔。這款 T-Shirt 以蕾娜為核心設計，象徵她的堅韌與溫柔，讓你穿上後，彷彿也能跨越戰火，與同伴並肩作戰。`,
+    size: ['S', 'M', 'L', 'XL', 'XXL'],
+    color: ['#000000', '#494E38'],
   },
 ])
 
@@ -39,6 +48,20 @@ const allProductImages = ref([
     productsId: 1, // 關聯到 products 的 id
     src: new URL('../assets/product-img/T-Short-kaguya-1.jpeg', import.meta.url).href,
     alt: 'Kaguya T-Shirt - 副圖',
+    isMain: false,
+  },
+  {
+    id: 201,
+    productsId: 2, // 關聯到 products 的 id
+    src: new URL('../assets/product-img/T-Short-86-0.jpeg', import.meta.url).href,
+    alt: 'Reina T-Shirt - 主圖',
+    isMain: true,
+  },
+  {
+    id: 202,
+    productsId: 2, // 關聯到 products 的 id
+    src: new URL('../assets/product-img/T-Short-86-1.jpeg', import.meta.url).href,
+    alt: 'Reina T-Shirt - 副圖',
     isMain: false,
   },
 ])
