@@ -5,7 +5,11 @@
     :product="selectedProduct"
     :images="getProductImages(selectedProduct.id)"
   />
-  <ProductList :products="products" :images="allProductImages" />
+  <ProductList
+    :products="products"
+    :images="allProductImages"
+    @select-product="changeSelectedProduct"
+  />
   <!-- 新增產品彈跳視窗 -->
 </template>
 
@@ -80,9 +84,9 @@ const getProductImages = (productId) => {
 }
 
 // 切換選中的產品傳入產品展示區
-// const changeSelectedProduct = (productId) => {
-// selectedProductId.value = productId
-// }
+const changeSelectedProduct = (productId) => {
+  selectedProductId.value = productId
+}
 </script>
 
 <style scoped></style>

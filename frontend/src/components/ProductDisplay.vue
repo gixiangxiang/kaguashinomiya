@@ -16,15 +16,12 @@
 
     <!-- 右側商品資訊區 -->
     <section class="product-info">
-      <!-- 商品名稱 -->
       <h2 class="product-name">{{ product.name }}</h2>
 
-      <!-- 價格區域 -->
       <div class="product-price">
         <span class="price">NT$ {{ product.price.toLocaleString() }}</span>
       </div>
 
-      <!-- 規格選擇區 -->
       <div class="product-options">
         <div class="option-group">
           <h3>尺寸</h3>
@@ -56,7 +53,6 @@
         </div>
       </div>
 
-      <!-- 產品簡介 -->
       <div class="product-description">
         <h3>商品介紹</h3>
         <p>{{ product.description }}</p>
@@ -68,7 +64,6 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 
-// 聲明要接收的 props
 const props = defineProps({
   product: {
     type: Object,
@@ -140,9 +135,16 @@ watch(
   flex: 1;
 
   img {
-    width: 100%;
+    width: 530px;
+    height: 600px;
     border-radius: 8px;
-    object-fit: cover;
+    object-fit: contabvin;
+    background-color: #fff;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      height: auto;
+    }
   }
 
   .thumbnail-gallery {

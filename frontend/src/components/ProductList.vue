@@ -6,7 +6,7 @@
     <div v-else-if="products.length === 0" class="no-products">暫無商品</div>
     <ul class="product-grid">
       <li v-for="product in products" :key="product.id" class="product-card">
-        <div class="image-wrapper">
+        <div @click="selectProduct(product.id)" class="image-wrapper">
           <img :src="getProductMainImage(product.id)" :alt="product.name" class="product-image" />
         </div>
         <h5 class="product-name">{{ product.name }}</h5>
@@ -34,12 +34,22 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['select-product'])
+
 const isLoading = ref(false) // 是否載入中 (先預設為 false 等API測試再改為 true)
 
 const getProductMainImage = (productId) => {
   // 找出對應商品的主要圖片
   const mainImage = props.images.find((image) => image.productsId === productId && image.isMain)
   return mainImage.src
+}
+
+const selectProduct = (productId) => {
+  emit('select-product', productId)
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  })
 }
 </script>
 
