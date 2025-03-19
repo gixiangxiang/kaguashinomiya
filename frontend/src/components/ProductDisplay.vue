@@ -42,7 +42,7 @@
           <h3>顏色</h3>
           <div class="option-buttons">
             <button
-              v-for="(colorOption, index) in product.color"
+              v-for="(colorOption, index) in product.colors"
               :style="{ backgroundColor: colorOption }"
               :key="index"
               :class="{ active: selectedColor === colorOption }"
