@@ -1,6 +1,12 @@
 <template>
   <section class="product-list">
-    <h2 class="product-title">更多潮流動漫服飾</h2>
+    <div class="product-header">
+      <h2 class="product-title">更多潮流動漫服飾</h2>
+      <div class="product-search">
+        <label for="search-input">搜尋產品：</label>
+        <input id="search-input" type="text" class="search-input" placeholder="搜尋商品..." />
+      </div>
+    </div>
 
     <div v-if="isLoading" class="loading">資料載入中...</div>
     <div v-else-if="products.length === 0" class="no-products">暫無商品</div>
@@ -62,26 +68,73 @@ const selectProduct = (productId) => {
   padding: 60px;
   border-top: 1px solid #ccc;
 
+  .product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 50px;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
   .product-title {
     position: relative;
     color: #2e3748;
     font-size: 1.5rem;
     font-weight: 600;
-    margin-bottom: 60px;
     letter-spacing: 2.5px;
+    padding-bottom: 10px;
 
     &::after {
       content: '';
       position: absolute;
       left: 0;
-      bottom: -15px;
+      bottom: 0;
       width: 110px;
       height: 3px;
       background-color: #2e3748;
       border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    &:hover::after {
+      width: 100%;
     }
   }
 
+  .product-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    label {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #2e3748;
+      white-space: nowrap;
+    }
+  }
+
+  .search-input {
+    padding: 10px 16px;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+    box-shadow: inset 0 0 5px 1px rgba(0, 0, 0, 0.2);
+    color: #2e3748;
+    font-size: 0.95rem;
+    min-width: 200px;
+    transition: box-shadow 0.3s ease;
+
+    &:focus {
+      box-shadow: inset 0 0 6px 1px rgba(46, 55, 72, 0.3);
+    }
+
+    &::placeholder {
+      color: #aaa;
+      opacity: 0.8;
+    }
+  }
   .loading {
     font-size: 1.125rem;
     font-weight: 600;
@@ -184,6 +237,20 @@ const selectProduct = (productId) => {
 
 // 添加響應式設計
 @media (max-width: 768px) {
+  .product-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .product-search {
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .search-input {
+    flex-grow: 1;
+  }
+
   .product-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
