@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\product;
+use App\Models\products_image;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,5 +16,50 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+  return view('welcome');
+});
+
+Route::get('/products', function () {
+  return ['products' => \App\Models\Product::all()];
+});
+
+Route::get('/products/{id}', function ($id) {
+
+  return ['product' => \App\Models\Product::find($id)];
+});
+
+Route::get('/produimages/{id}', function ($id) {
+
+  return ['produimage' => \App\Models\products_image::find($id)];
+});
+
+Route::get('/product-json/{id}', function ($id) {
+  $product = product::find($id);
+
+  if (!$product) {
+      return response()->json(['error' => 'Product not found'], 404);
+  }
+
+  $images = products_image::where('product_id', $id)->get();
+
+  $result = [
+      'product' => [
+          'id' => $product->id,
+          'name' => $product->name,
+          'colors' => $product->colors,
+          'size' => $product->size,
+          'description' => $product->description,
+          'price' => $product->price,
+          'images' => $images->map(function ($image) {
+              return [
+                  'id' => $image->id,
+                  'src' => $image->src,
+                  'isMain' => $image->isMain,
+                  'product_id' => $image->product_id,
+              ];
+          }),
+      ],
+  ];
+
+  return response()->json($result);
 });
