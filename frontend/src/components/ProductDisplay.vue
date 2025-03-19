@@ -5,7 +5,7 @@
       <img :src="currentImage" :alt="product.name" class="main-image" />
       <div class="thumbnail-gallery">
         <img
-          v-for="image in images"
+          v-for="image in product.images"
           :key="image.id"
           :src="image.src"
           :alt="image.alt"
@@ -64,14 +64,11 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 
+// 聲明接收的 props
 const props = defineProps({
   product: {
-    type: Object,
-    required: true,
-  },
-  images: {
     type: Array,
-    default: () => [],
+    required: true,
   },
 })
 
@@ -81,7 +78,7 @@ const selectedColor = ref(``) // 選中的顏色
 
 // 初始化-預設顯示主圖
 const initMainImage = () => {
-  const mainImage = props.images.find((img) => img.isMain)
+  const mainImage = props.product.images.find((img) => img.isMain)
   if (mainImage) {
     currentImage.value = mainImage.src
   }

@@ -7,7 +7,7 @@
     <ul class="product-grid">
       <li v-for="product in products" :key="product.id" class="product-card">
         <div @click="selectProduct(product.id)" class="image-wrapper">
-          <img :src="getProductMainImage(product.id)" :alt="product.name" class="product-image" />
+          <img :src="getProductMainImage(product)" :alt="product.name" class="product-image" />
         </div>
         <h5 class="product-name">{{ product.name }}</h5>
         <p class="product-price">NT$ {{ product.price.toLocaleString() }}</p>
@@ -23,27 +23,30 @@
 <script setup>
 import { ref } from 'vue'
 
+// 聲明接收的 props
 const props = defineProps({
   products: {
-    type: Object,
+    type: Array,
     required: true,
   },
-  images: {
-    type: Object,
-    default: () => [],
-  },
+  // images: {
+  //   type: Array,
+  //   default: () => [],
+  // },
 })
 
+// 聲明向父組件發出的事件
 const emit = defineEmits(['select-product'])
 
 const isLoading = ref(false) // 是否載入中 (先預設為 false 等API測試再改為 true)
 
-const getProductMainImage = (productId) => {
-  // 找出對應商品的主要圖片
-  const mainImage = props.images.find((image) => image.productsId === productId && image.isMain)
+const getProductMainImage = (product) => {
+  // 找出商品的主要圖片
+  const mainImage = product.images.find((image) => image.isMain)
   return mainImage.src
 }
 
+// 點擊商品圖時觸發 select-product 事件
 const selectProduct = (productId) => {
   emit('select-product', productId)
   window.scrollTo({
