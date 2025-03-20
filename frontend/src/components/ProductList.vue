@@ -35,10 +35,6 @@ const props = defineProps({
     type: Array,
     required: true,
   },
-  // images: {
-  //   type: Array,
-  //   default: () => [],
-  // },
 })
 
 // 聲明向父組件發出的事件

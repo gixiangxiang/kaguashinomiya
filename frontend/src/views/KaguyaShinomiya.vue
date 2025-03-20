@@ -6,9 +6,9 @@
 </template>
 
 <script setup>
-import Header from '../components/Header.vue'
-import ProductDisplay from '../components/ProductDisplay.vue'
-import ProductList from '../components/ProductList.vue'
+import Header from '@/components/Header.vue'
+import ProductDisplay from '@/components/ProductDisplay.vue'
+import ProductList from '@/components/ProductList.vue'
 
 import { ref, computed } from 'vue'
 
@@ -24,14 +24,14 @@ const products = ref([
       {
         id: 101,
         // productsId: 1, // 關聯到 products 的 id
-        src: new URL('../assets/product-img/T-Short-kaguya-0.jpeg', import.meta.url).href,
+        src: new URL('@/assets/product-img/T-Short-kaguya-0.jpeg', import.meta.url).href,
         alt: 'Kaguya T-Shirt - 主圖',
         isMain: true,
       },
       {
         id: 102,
         // productsId: 1, // 關聯到 products 的 id
-        src: new URL('../assets/product-img/T-Short-kaguya-1.jpeg', import.meta.url).href,
+        src: new URL('@/assets/product-img/T-Short-kaguya-1.jpeg', import.meta.url).href,
         alt: 'Kaguya T-Shirt - 副圖',
         isMain: false,
       },
@@ -48,14 +48,14 @@ const products = ref([
       {
         id: 201,
         // productsId: 2, // 關聯到 products 的 id
-        src: new URL('../assets/product-img/T-Short-86-0.jpeg', import.meta.url).href,
+        src: new URL('@/assets/product-img/T-Short-86-0.jpeg', import.meta.url).href,
         alt: 'Reina T-Shirt - 主圖',
         isMain: true,
       },
       {
         id: 202,
         // productsId: 2, // 關聯到 products 的 id
-        src: new URL('../assets/product-img/T-Short-86-1.jpeg', import.meta.url).href,
+        src: new URL('@/assets/product-img/T-Short-86-1.jpeg', import.meta.url).href,
         alt: 'Reina T-Shirt - 副圖',
         isMain: false,
       },
