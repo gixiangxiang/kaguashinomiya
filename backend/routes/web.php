@@ -37,29 +37,56 @@ Route::get('/product-json/{id}', function ($id) {
   $product = product::find($id);
 
   if (!$product) {
-      return response()->json(['error' => 'Product not found'], 404);
+    return response()->json(['error' => 'Product not found'], 404);
   }
 
   $images = products_image::where('product_id', $id)->get();
 
   $result = [
-      'product' => [
-          'id' => $product->id,
-          'name' => $product->name,
-          'colors' => $product->colors,
-          'size' => $product->size,
-          'description' => $product->description,
-          'price' => $product->price,
-          'images' => $images->map(function ($image) {
-              return [
-                  'id' => $image->id,
-                  'src' => $image->src,
-                  'isMain' => $image->isMain,
-                  'product_id' => $image->product_id,
-              ];
-          }),
-      ],
+    'product' => [
+      'id' => $product->id,
+      'name' => $product->name,
+      'colors' => $product->colors,
+      'size' => $product->size,
+      'description' => $product->description,
+      'price' => $product->price,
+      'images' => $images->map(function ($image) {
+        return [
+          'id' => $image->id,
+          'src' => $image->src,
+          'isMain' => $image->isMain,
+          'product_id' => $image->product_id,
+        ];
+      }),
+    ],
   ];
 
   return response()->json($result);
+});
+
+Route::get('/products-json/all', function () {
+  $products = product::all();
+
+  $result = $products->map(function ($product) {
+    $images = products_image::where('product_id', $product->id)->get();
+
+    return [
+      'id' => $product->id,
+      'name' => $product->name,
+      'colors' => $product->colors,
+      'size' => $product->size,
+      'description' => $product->description,
+      'price' => $product->price,
+      'images' => $images->map(function ($image) {
+        return [
+          'id' => $image->id,
+          'src' => $image->src,
+          'isMain' => $image->isMain,
+          // 'product_id' => $image->product_id,
+        ];
+      }),
+    ];
+  });
+
+  return response()->json(['products' => $result]);
 });
