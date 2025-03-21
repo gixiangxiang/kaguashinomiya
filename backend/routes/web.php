@@ -70,11 +70,15 @@ Route::get('/products-json/all', function () {
   $result = $products->map(function ($product) {
     $images = products_image::where('product_id', $product->id)->get();
 
+    // 將字串形式的陣列轉換為實際PHP陣列
+    $colors = json_decode(str_replace("'", '"', $product->colors), true);
+    $size = json_decode(str_replace("'", '"', trim($product->size)), true);
+
     return [
       'id' => $product->id,
       'name' => $product->name,
-      'colors' => $product->colors,
-      'size' => $product->size,
+      'colors' => $colors,
+      'size' => $size,
       'description' => $product->description,
       'price' => $product->price,
       'images' => $images->map(function ($image) {
