@@ -3,10 +3,18 @@
   <textarea
     v-if="type === 'textarea'"
     :placeholder="placeholder"
+    :disabled="disabled"
     v-model="inputModel"
     required
   ></textarea>
-  <input v-else :type="type" :placeholder="placeholder" v-model="inputModel" required />
+  <input
+    v-else
+    :type="type"
+    :placeholder="placeholder"
+    :disabled="disabled"
+    v-model="inputModel"
+    required
+  />
 </template>
 
 <script setup>
@@ -27,6 +35,10 @@ const props = defineProps({
   placeholder: {
     type: String,
     default: '',
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
   },
 })
 </script>

@@ -7,6 +7,7 @@
       v-for="(color, index) in selectedColor"
       :key="index"
       :style="{ backgroundColor: color === '#ffffff' ? '#ededed' : color }"
+      :disabled="disabled"
     >
       <button @click="removeColor(index)" type="button">&times;</button>
       <span>{{ color }}</span>
@@ -34,6 +35,10 @@ const props = defineProps({
   selectedColor: {
     type: Array,
     default: () => [],
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
   },
 })
 

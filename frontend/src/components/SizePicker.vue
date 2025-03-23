@@ -3,7 +3,7 @@
 
   <div class="options">
     <label v-for="option in options" :key="option">
-      <input type="checkbox" :value="option" v-model="checkboxModel" />
+      <input type="checkbox" :value="option" :disabled="disabled" v-model="checkboxModel" />
       <span>{{ option }}</span>
     </label>
   </div>
@@ -23,6 +23,10 @@ const props = defineProps({
   label: {
     type: String,
     default: '',
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
   },
 })
 </script>

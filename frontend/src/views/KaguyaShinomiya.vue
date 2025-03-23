@@ -19,7 +19,7 @@ const error = ref(null)
 
 onMounted(async () => {
   try {
-    const response = await axios.get(`/api/products-json/all`)
+    const response = await axios.get(`/api/api/products-json/all`)
     const data = response.data.products
     products.value = data
   } catch (err) {

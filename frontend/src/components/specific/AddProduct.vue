@@ -1,6 +1,8 @@
 <template>
   <a @click="changeShowEditor" class="add-btn"> + </a>
 
+  <ToastMessage :toast="toast" />
+
   <section v-if="showEditor" class="product-editor-wrapper">
     <div class="product-editor">
       <div class="product-editor__header">
@@ -14,6 +16,7 @@
             v-model:inputModel="newProduct.name"
             :placeholder="'請輸入商品名稱...'"
             :label="'商品名稱'"
+            :disabled="isLoading"
           />
         </div>
 
@@ -23,6 +26,7 @@
             :placeholder="'請輸入商品價格...'"
             :label="'商品價格 (NT$)'"
             type="number"
+            :disabled="isLoading"
           />
         </div>
 
@@ -32,6 +36,7 @@
             :placeholder="'請輸入商品描述...'"
             :label="'商品描述'"
             type="textarea"
+            :disabled="isLoading"
           />
         </div>
 
@@ -40,6 +45,7 @@
             :label="'可選尺寸'"
             :options="productSizeOptions"
             v-model:checkboxModel="newProduct.size"
+            :disabled="isLoading"
           />
         </div>
 
@@ -50,12 +56,19 @@
             v-model:colorSelectorModel="currentColor"
             @add-color="addSelectedColor(currentColor)"
             @remove-color="removeSelectedColor($event)"
+            :disabled="isLoading"
           />
         </div>
 
         <div class="form-actions">
           <button @click="clearForm" type="button" class="clear-btn">清除</button>
-          <button type="submit" class="save-btn">儲存商品</button>
+          <button @click="submitForm" type="submit" class="save-btn">
+            <span v-if="!isLoading">儲存商品</span>
+            <span v-else class="loading-text">
+              新增中
+              <span class="spinner"></span>
+            </span>
+          </button>
         </div>
       </form>
     </div>
@@ -66,9 +79,9 @@
 import BaseInput from '../BaseInput.vue'
 import SizePicker from '../SizePicker.vue'
 import ColorSelector from '../ColorSelector.vue'
+import ToastMessage from '../ToastMessage.vue'
 import { reactive, ref } from 'vue'
-
-const showEditor = ref(false)
+import axios from 'axios'
 
 const newProduct = reactive({
   name: '',
@@ -76,10 +89,65 @@ const newProduct = reactive({
   size: [],
   description: '',
   price: null,
+  images: [
+    {
+      src: '123',
+      isMain: true,
+    },
+  ],
+})
+
+const toast = reactive({
+  type: 'success',
+  message: '',
+  show: false,
 })
 
 const productSizeOptions = ref(['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'])
 const currentColor = ref('')
+const showEditor = ref(false)
+const isLoading = ref(false)
+
+const submitForm = async () => {
+  isLoading.value = true
+
+  if (
+    !newProduct.name ||
+    !newProduct.price ||
+    !newProduct.description ||
+    !newProduct.size.length ||
+    !newProduct.colors.length
+  ) {
+    toast.type = 'error'
+    toast.message = '請填寫所有欄位'
+    toast.show = true
+    isLoading.value = false
+    return
+  }
+
+  try {
+    const response = await axios.post('/api/api/product/add', newProduct)
+
+    if (response.status === 200) {
+      clearForm()
+      toast.type = 'success'
+      toast.message = '商品新增成功'
+      toast.show = true
+
+      showEditor.value = false
+    } else {
+      alert('商品新增失敗')
+    }
+  } catch (err) {
+    toast.type = 'error'
+    toast.message = '商品新增失敗'
+    toast.show = true
+
+    console.error(err)
+  } finally {
+    isLoading.value = false
+  }
+}
 
 const addSelectedColor = (color) => {
   if (!color) return
@@ -219,6 +287,29 @@ const clearForm = () => {
     background-color: #2e3748;
     color: white;
     border: none;
+
+    .loading-text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
     &:hover {
       background-color: #3a4a63;
