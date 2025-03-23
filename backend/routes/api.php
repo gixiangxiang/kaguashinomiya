@@ -51,12 +51,13 @@ Route::get('/product-json/{id}', function ($id) {
       }),
     ],
   ];
-
   return response()->json($result);
 });
 
 // 所有商品的資料
 Route::get('/products-json/all', function () {
+
+  
   $products = product::all();
 
   $result = $products->map(function ($product) {
@@ -83,7 +84,10 @@ Route::get('/products-json/all', function () {
       }),
     ];
   });
+  
+  $encodeData = json_encode($result, JSON_UNESCAPED_UNICODE);
 
+  error_log("result data:".$encodeData);
   return response()->json(['products' => $result]);
 });
 
@@ -96,18 +100,46 @@ Route::post('/product/add', function (Request $request) {
     $product->size = json_encode($request->size);
     $product->description = $request->description;
     $product->price = $request->price;
-    $product->save();
-
+    
     $images = $request->images;
     foreach ($images as $image) {
-      $product_image = new products_image();
+      $product_image = new products_image();  
       $product_image->src = $image['src'];
       $product_image->isMain = $image['isMain'];
       $product_image->product_id = $product->id;
       $product_image->save();
     }
+    $product->save();
   } catch (\Exception $e) {
     return response('Product added failed', 500);
   }
   return response('Product added successed', 200);
+});
+
+//搜尋商品
+Route::get('/product/search/{name}', function ($name) {
+  $products = product::where('name', 'like', '%'.$name.'%')->get();
+  $result = $products->map(function ($product) {
+    $images = products_image::where('product_id', $product->id)->get();
+    // 將字串形式的陣列轉換為實際PHP陣列
+    $colors = json_decode(str_replace("'", '"', $product->colors), true);
+    $size = json_decode(str_replace("'", '"', trim($product->size)), true);
+    return [
+      'id' => $product->id,
+      'name' => $product->name,
+      'colors' => $colors,
+      'size' => $size,
+      'description' => $product->description,
+      'price' => $product->price,
+      'images' => $images->map(function ($image) {
+        return [
+          'id' => $image->id,
+          'src' => $image->src,
+          'isMain' => $image->isMain,
+          // 'product_id' => $image->product_id,
+        ];
+      }),
+    ];
+  });
+  return response()->json(['products' => $result]);
 });
