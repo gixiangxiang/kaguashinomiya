@@ -132,16 +132,11 @@ watch(
   flex: 1;
 
   img {
-    width: 530px;
-    height: 600px;
+    width: 100%;
+    height: auto;
     border-radius: 8px;
     object-fit: contabvin;
     background-color: #fff;
-
-    @media (max-width: 768px) {
-      width: 100%;
-      height: auto;
-    }
   }
 
   .thumbnail-gallery {
@@ -177,6 +172,7 @@ watch(
 .product-name {
   font-size: 2rem;
   font-weight: 700;
+  line-height: 1.5;
   color: #2d3748;
   margin: 0;
 }
