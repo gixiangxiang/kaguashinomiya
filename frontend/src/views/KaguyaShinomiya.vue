@@ -2,13 +2,14 @@
   <Header />
   <ProductDisplay v-if="selectedProduct" :product="selectedProduct" />
   <ProductList :products="products" @select-product="changeSelectedProduct" />
-  <!-- 新增產品彈跳視窗 -->
+  <AddProduct />
 </template>
 
 <script setup>
 import Header from '@/components/Header.vue'
-import ProductDisplay from '@/components/ProductDisplay.vue'
-import ProductList from '@/components/ProductList.vue'
+import ProductDisplay from '@/components/specific/ProductDisplay.vue'
+import ProductList from '@/components/specific/ProductList.vue'
+import AddProduct from '../components/specific/AddProduct.vue'
 import axios from 'axios'
 
 import { ref, computed, onMounted } from 'vue'
@@ -20,8 +21,6 @@ onMounted(async () => {
   try {
     const response = await axios.get(`/api/products-json/all`)
     const data = response.data.products
-    console.log(data)
-    console.log(Array.isArray(data.images))
     products.value = data
   } catch (err) {
     error.value = err.repsonse.data
