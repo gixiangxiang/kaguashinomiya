@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\product;
 use App\Models\products_image;
+use Illuminate\Support\Facades\Validator;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,7 +58,7 @@ Route::get('/product-json/{id}', function ($id) {
 // 所有商品的資料
 Route::get('/products-json/all', function () {
 
-  
+
   $products = product::all();
 
   $result = $products->map(function ($product) {
@@ -84,41 +85,56 @@ Route::get('/products-json/all', function () {
       }),
     ];
   });
-  
+
   $encodeData = json_encode($result, JSON_UNESCAPED_UNICODE);
 
-  error_log("result data:".$encodeData);
+  error_log("result data:" . $encodeData);
   return response()->json(['products' => $result]);
 });
 
 //新增商品
 Route::post('/product/add', function (Request $request) {
   try {
+    //確認資料是否為空
+    $validator = Validator::make($request->all(), [
+      'name' => 'required',
+      'colors' => 'required|array',
+      'size' => 'required|array',
+      'description' => 'required',
+      'price' => 'required|numeric',
+      'images' => 'required|array',
+      'images.*.src' => 'required',
+      'images.*.isMain' => 'required|boolean',
+    ]);
+
+    if ($validator->fails()) {
+      return response($validator->errors(), 400);
+    }
     $product = new product();
     $product->name = $request->name;
     $product->colors = json_encode($request->colors);
     $product->size = json_encode($request->size);
     $product->description = $request->description;
     $product->price = $request->price;
-    
+    $product->save();
+
     $images = $request->images;
     foreach ($images as $image) {
-      $product_image = new products_image();  
+      $product_image = new products_image();
       $product_image->src = $image['src'];
       $product_image->isMain = $image['isMain'];
       $product_image->product_id = $product->id;
       $product_image->save();
     }
-    $product->save();
   } catch (\Exception $e) {
-    return response('Product added failed', 500);
+    return response('Product added failed:'.$e, 500);
   }
   return response('Product added successed', 200);
 });
 
 //搜尋商品
 Route::get('/product/search/{name}', function ($name) {
-  $products = product::where('name', 'like', '%'.$name.'%')->get();
+  $products = product::where('name', 'like', '%' . $name . '%')->get();
   $result = $products->map(function ($product) {
     $images = products_image::where('product_id', $product->id)->get();
     // 將字串形式的陣列轉換為實際PHP陣列
