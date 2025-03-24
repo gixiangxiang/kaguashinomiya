@@ -80,8 +80,20 @@ import BaseInput from '../BaseInput.vue'
 import SizePicker from '../SizePicker.vue'
 import ColorSelector from '../ColorSelector.vue'
 import ToastMessage from '../ToastMessage.vue'
-import { reactive, ref } from 'vue'
-import axios from 'axios'
+import { reactive, ref, watch } from 'vue'
+
+const emit = defineEmits(['submit-product'])
+
+const props = defineProps({
+  isLoading: {
+    type: Boolean,
+    default: false,
+  },
+  lastSubmitResult: {
+    type: Object,
+    default: null,
+  },
+})
 
 const newProduct = reactive({
   name: '',
@@ -106,11 +118,8 @@ const toast = reactive({
 const productSizeOptions = ref(['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'])
 const currentColor = ref('')
 const showEditor = ref(false)
-const isLoading = ref(false)
 
-const submitForm = async () => {
-  isLoading.value = true
-
+const submitForm = () => {
   if (
     !newProduct.name ||
     !newProduct.price ||
@@ -121,14 +130,18 @@ const submitForm = async () => {
     toast.type = 'error'
     toast.message = '請填寫所有欄位'
     toast.show = true
-    isLoading.value = false
     return
   }
 
-  try {
-    const response = await axios.post('/api/api/product/add', newProduct)
+  emit('submit-product', newProduct)
+}
 
-    if (response.status === 200) {
+watch(
+  () => props.lastSubmitResult,
+  (newResult) => {
+    if (!newResult) return
+
+    if (newResult.success) {
       clearForm()
       toast.type = 'success'
       toast.message = '商品新增成功'
@@ -136,18 +149,13 @@ const submitForm = async () => {
 
       showEditor.value = false
     } else {
-      alert('商品新增失敗')
+      toast.type = 'error'
+      toast.message = '商品新增失敗'
+      toast.show = true
     }
-  } catch (err) {
-    toast.type = 'error'
-    toast.message = '商品新增失敗'
-    toast.show = true
-
-    console.error(err)
-  } finally {
-    isLoading.value = false
-  }
-}
+  },
+  { deep: true }
+)
 
 const addSelectedColor = (color) => {
   if (!color) return

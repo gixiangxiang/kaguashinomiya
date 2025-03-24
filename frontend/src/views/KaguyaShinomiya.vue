@@ -2,7 +2,11 @@
   <Header />
   <ProductDisplay v-if="selectedProduct" :product="selectedProduct" />
   <ProductList :products="products" @select-product="changeSelectedProduct" />
-  <AddProduct />
+  <AddProduct
+    @submit-product="handleAddProduct"
+    :isLoading="isLoading"
+    :lastSubmitResult="lastSubmitResult"
+  />
 </template>
 
 <script setup>
@@ -10,22 +14,41 @@ import Header from '@/components/Header.vue'
 import ProductDisplay from '@/components/specific/ProductDisplay.vue'
 import ProductList from '@/components/specific/ProductList.vue'
 import AddProduct from '../components/specific/AddProduct.vue'
-import axios from 'axios'
+import { productApi } from '../server/api/productApi'
 
 import { ref, computed, onMounted } from 'vue'
 
 const products = ref([]) // 存儲 API 獲取產品數據
-const error = ref(null)
+const isLoading = ref(false)
+const lastSubmitResult = ref(null)
 
-onMounted(async () => {
+const fetchAllProducts = async () => {
   try {
-    const response = await axios.get(`/api/api/products-json/all`)
-    const data = response.data.products
+    const data = await productApi.getAllProducts()
     products.value = data
   } catch (err) {
-    error.value = err.repsonse.data
+    console.error(`獲取產品失敗:${err}`)
   }
-})
+}
+
+const handleAddProduct = async (newProduct) => {
+  isLoading.value = true
+  lastSubmitResult.value = null // 重置結果確保被 watch 偵測到
+
+  try {
+    await productApi.addProduct(newProduct)
+    await fetchAllProducts()
+
+    lastSubmitResult.value = { success: true }
+  } catch (err) {
+    lastSubmitResult.value = { success: false }
+    console.error(`新增產品失敗：${err}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(fetchAllProducts)
 
 // 默認選中的產品 ID
 const selectedProductId = ref(1)
