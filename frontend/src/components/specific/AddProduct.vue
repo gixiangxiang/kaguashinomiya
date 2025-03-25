@@ -110,7 +110,7 @@ const newProduct = reactive({
 })
 
 const toast = reactive({
-  type: 'success',
+  type: '',
   message: '',
   show: false,
 })
@@ -127,9 +127,7 @@ const submitForm = () => {
     !newProduct.size.length ||
     !newProduct.colors.length
   ) {
-    toast.type = 'error'
-    toast.message = '請填寫所有欄位'
-    toast.show = true
+    toastShow('error', '請填寫所有欄位')
     return
   }
 
@@ -143,19 +141,22 @@ watch(
 
     if (newResult.success) {
       clearForm()
-      toast.type = 'success'
-      toast.message = '商品新增成功'
-      toast.show = true
+      toastShow('success', '商品新增成功')
 
       showEditor.value = false
     } else {
-      toast.type = 'error'
-      toast.message = '商品新增失敗'
-      toast.show = true
+      toastShow('error', '商品新增失敗')
     }
   },
   { deep: true }
 )
+
+const toastShow = (type, message) => {
+  toast.type = type
+  toast.message = message
+  toast.show = true
+  setTimeout(() => (toast.show = false), 2000)
+}
 
 const addSelectedColor = (color) => {
   if (!color) return
