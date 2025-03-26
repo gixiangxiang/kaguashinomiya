@@ -1,5 +1,5 @@
 <template>
-  <Transition name="toast" mode="out-in">
+  <Transition name="toast">
     <div class="toast" v-if="toast.show">
       <div class="toast-content" :class="toast.type">
         <i class="bx" :class="toast.type === 'success' ? 'bx-check-circle' : 'bx-error-circle'"></i>
@@ -10,7 +10,6 @@
 </template>
 
 <script setup>
-import { Transition } from 'vue'
 const props = defineProps({
   toast: {
     type: Object,
@@ -68,7 +67,7 @@ const props = defineProps({
 
 // 桌面版動畫 (從右側滑入，向右側滑出)
 .toast-enter-from {
-  // opacity: 0;
+  opacity: 0;
   transform: translateX(350px);
 }
 
@@ -78,7 +77,7 @@ const props = defineProps({
 }
 
 .toast-leave-to {
-  // opacity: 0;
+  opacity: 0;
   transform: translateX(350px);
 }
 

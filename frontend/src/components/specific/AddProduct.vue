@@ -12,6 +12,14 @@
 
       <form @submit.prevent class="product-editor__form">
         <div class="form-group">
+          <ImageUploader
+            v-model:images="newProduct.images"
+            :label="'商品圖上傳'"
+            :isDisabled="isLoading"
+          />
+        </div>
+
+        <div class="form-group">
           <BaseInput
             v-model:inputModel="newProduct.name"
             :placeholder="'請輸入商品名稱...'"
@@ -80,6 +88,7 @@ import BaseInput from '../BaseInput.vue'
 import SizePicker from '../SizePicker.vue'
 import ColorSelector from '../ColorSelector.vue'
 import ToastMessage from '../ToastMessage.vue'
+import ImageUploader from '../ImageUploader.vue'
 import { reactive, ref, watch } from 'vue'
 
 const emit = defineEmits(['submit-product'])
@@ -103,8 +112,12 @@ const newProduct = reactive({
   price: null,
   images: [
     {
-      src: '123',
+      src: 'http://localhost:8080/images/T-Short-86-0.jpeg',
       isMain: true,
+    },
+    {
+      src: 'http://localhost:8080/images/T-Short-86-1.jpeg',
+      isMain: false,
     },
   ],
 })
@@ -125,7 +138,8 @@ const submitForm = () => {
     !newProduct.price ||
     !newProduct.description ||
     !newProduct.size.length ||
-    !newProduct.colors.length
+    !newProduct.colors.length ||
+    !newProduct.images.length
   ) {
     toastShow('error', '請填寫所有欄位')
     return
@@ -179,6 +193,7 @@ const clearForm = () => {
   newProduct.size = []
   newProduct.description = ''
   newProduct.price = null
+  newProduct.images = []
 }
 </script>
 
@@ -193,8 +208,8 @@ const clearForm = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   border: none;
   background: #2e3748;
