@@ -24,19 +24,18 @@ export const productApi = {
         colors: product.colors,
       }
 
-      formData.append('jsonData', JSON.stringify(jsonData))
+      const mainImage = product.images.find((img) => img.isMain)
+      const otherImages = product.images.filter((img) => !img.isMain)
 
-      product.images.forEach((image, index) => {
-        formData.append(`image${index}`, image.file)
-        formData.append(`isMain${index}`, image.isMain)
+      formData.append('jsonData', JSON.stringify(jsonData))
+      formData.append('mainImage', mainImage.file)
+      otherImages.forEach((img, index) => {
+        formData.append(`images[${index}]`, img.file)
       })
 
-      const headers = {
-        'Content-Type': 'multipart/form-data',
-      }
-      await console.log('formData', formData)
-
-      const response = await axios.post('/api/api/product/add', formData, headers)
+      const response = await axios.post('/api/api/product/add', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
       return response.data
     } catch (error) {
       throw error
