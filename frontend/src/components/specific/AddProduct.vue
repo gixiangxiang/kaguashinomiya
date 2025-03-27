@@ -17,6 +17,8 @@
             :label="'商品圖上傳'"
             :isDisabled="isLoading"
             :maxImages="5"
+            :MAX_SIZE="1 * 1024 * 1024"
+            @show-toast="handleShowToast"
           />
         </div>
 
@@ -164,6 +166,11 @@ const toastShow = (type, message) => {
   setTimeout(() => (toast.show = false), 2000)
 }
 
+const handleShowToast = (toastData) => {
+  // 圖片上傳張數超過限制顯示訊息
+  toastShow(toastData.type, toastData.message)
+}
+
 const addSelectedColor = (color) => {
   if (!color) return
   if (!newProduct.colors.includes(color)) {
@@ -240,12 +247,17 @@ const clearForm = () => {
   border-radius: 12px;
   box-shadow: 0 5px 15px #00000033;
   overflow-y: auto;
+  flex-direction: column;
 
   &__header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid #ccc;
+    background-color: #fff;
     padding: 20px;
 
     h2 {

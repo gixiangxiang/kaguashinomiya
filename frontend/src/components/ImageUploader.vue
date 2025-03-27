@@ -33,9 +33,17 @@
           multiple
           required
         />
-        <div class="upload-box" :class="{ disabled: isDisabled }" @click="triggerFileInput">
+        <div
+          class="upload-box"
+          :class="{ disabled: isDisabled, dragging: isDragging }"
+          @click="triggerFileInput"
+          @dragover.prevent="isDragging = true"
+          @dragenter.prevent="isDragging = true"
+          @dragleave="isDragging = false"
+          @drop.prevent="handleDrop"
+        >
           <i class="bx bx-cloud-upload"></i>
-          <span>上傳圖片</span>
+          <span>{{ isDragging ? '放開以上傳' : '點擊或拖曳上傳' }}</span>
         </div>
       </div>
     </div>
@@ -44,8 +52,10 @@
 
 <script setup>
 import { ref } from 'vue'
+const emit = defineEmits(['show-toast'])
 
 const fileInput = ref(null) // 用於獲取圖片輸入DOM
+const isDragging = ref(false) // 拖曳狀態追蹤
 
 const images = defineModel('images', {
   type: Array,
@@ -64,11 +74,26 @@ const props = defineProps({
     type: Number,
     default: 5,
   },
+  MAX_SIZE: {
+    type: Number,
+    default: 1 * 1024 * 1024,
+  },
 })
 
 const triggerFileInput = () => {
   if (props.isDisabled) return
   fileInput.value.click()
+}
+
+const handleDrop = (event) => {
+  if (props.isDisabled) return
+  // event.preventDefault()
+  isDragging.value = false
+
+  const droppedFiles = event.dataTransfer.files
+  if (!droppedFiles.length) return
+
+  processFiles(droppedFiles)
 }
 
 const handleFileChange = (event) => {
@@ -77,32 +102,52 @@ const handleFileChange = (event) => {
   const files = event.target.files
   if (!files.length) return
 
+  processFiles(files)
+
+  event.target.value = null // 重置 input 的值，讓同一張圖片可以重複上傳
+}
+
+const processFiles = (files) => {
   const newImages = [...images.value]
 
   const canAddCount = props.maxImages - newImages.length
   if (canAddCount <= 0) {
-    console.log('已達到最大圖片數量')
+    emit('show-toast', {
+      type: 'error',
+      message: `最多只能上傳${props.maxImages}張圖片`,
+    })
     return
   }
 
   // 限制上傳的圖片數量(FileList 是類陣列物件，不具有 slice 等陣列方法)
   const filesToProcess = Array.from(files).slice(0, props.maxImages - newImages.length)
+  let loadedCount = 0
 
   filesToProcess.forEach((file) => {
-    const reader = new FileReader()
+    if (file.size > props.MAX_SIZE) {
+      emit('show-toast', {
+        type: 'error',
+        message: `檔案大小超過 ${props.MAX_SIZE / 1024 / 1024}MB`,
+      })
+      return
+    }
 
+    const reader = new FileReader()
     reader.onload = (e) => {
       newImages.push({
         file,
         src: e.target.result,
         isMain: newImages.length === 0, // 第一張設為主圖
       })
-      images.value = newImages
-    }
-    reader.readAsDataURL(files[0])
-  })
+      loadedCount++
 
-  event.target.value = null // 重置 input 的值，讓同一張圖片可以重複上傳
+      // 只在所有文件都處理完後更新一次
+      if (loadedCount === filesToProcess.length) {
+        images.value = newImages
+      }
+    }
+    reader.readAsDataURL(file)
+  })
 }
 
 const removeItem = (index) => {
@@ -248,18 +293,15 @@ label {
   transition: all 0.2s;
   color: #2e3748;
 
-  i {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-  }
-
-  span {
-    font-size: 0.8rem;
-  }
-
   &:hover {
     border-color: #2e3748;
     background-color: #f5f6fa;
+  }
+
+  &.dragging {
+    color: #3498db;
+    border-color: #3498db;
+    background-color: rgba(52, 152, 219, 0.1);
   }
 
   &.disabled {
@@ -270,6 +312,15 @@ label {
       border-color: #ccc;
       background-color: transparent;
     }
+  }
+
+  i {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+  }
+
+  span {
+    font-size: 0.8rem;
   }
 }
 </style>
