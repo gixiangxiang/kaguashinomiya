@@ -196,39 +196,43 @@ Route::post('/product/images/upload', function (Request $request) {
 //儲存產品與多個圖片
 Route::post('/product/add', function (Request $request) {
   error_log("request data:" . $request);
+  // 驗證請求資料
   $validator = Validator::make($request->all(), [
     'jsonData' => 'required|json',
-    'images' => 'required|array',
+    'mainImage' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048', // 主圖片驗證
+    'images.*' => 'file|mimes:jpeg,png,jpg,gif|max:2048', // 副圖片驗證
   ]);
 
   if ($validator->fails()) {
     return response($validator->errors(), 400);
   }
   try {
+    // 解析 JSON 資料
+    $jsonData = json_decode($request->input('jsonData'), true);
     //商品資料
-    $jsonData = json_decode($request->jsonData, true);
     $product = new product();
-    $product->name = $jsonData->name;
-    $product->colors = json_encode($jsonData->colors);
-    $product->size = json_encode($jsonData->size);
-    $product->description = $jsonData->description;
-    $product->price = $jsonData->price;
+    $product->name = $jsonData['name'];
+    $product->colors = json_encode($jsonData['colors']);
+    $product->size = json_encode($jsonData['size']);
+    $product->description = $jsonData['description'];
+    $product->price = $jsonData['price'];
     $product->save();
 
     //主圖片
     $imageNames = [];
     $mainImage = $request->file('mainImage');
-    error_log("images data:" . $mainImage);
-    $mainImageName = time() . '.' . $mainImage->extension();
+    $mainImageName = time() . '_main.' . $mainImage->extension();
     $mainImage->move(public_path('images'), $mainImageName);
     array_push($imageNames, $mainImageName);
 
-    //副圖片
-    $otherImages = $request->file('otherImages');
-    foreach ($otherImages as $image) {
-      $imageName = time() . '.' . $image->extension();
-      $image->move(public_path('images'), $imageName);
-      array_push($imageNames, $imageName);
+    // 儲存副圖片
+    $otherImages = $request->file('images');
+    if ($otherImages) {
+      foreach ($otherImages as $index => $image) {
+        $imageName = time() . "_other_{$index}." . $image->extension();
+        $image->move(public_path('images'), $imageName);
+        array_push($imageNames, $imageName);
+      }
     }
 
     //儲存圖片資料
@@ -239,10 +243,9 @@ Route::post('/product/add', function (Request $request) {
       $product_image->product_id = $product->id;
       $product_image->save();
     }
+    return response('Product added successed', 200);
   } catch (\Exception $e) {
     return response('Product added failed:' . $e, 500);
   }
-  return response('Product added successed', 200);
-  
 });
 #endregion
