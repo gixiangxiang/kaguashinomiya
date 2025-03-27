@@ -3,6 +3,7 @@
 
   <div class="image-uploader">
     <div class="previews-container">
+      <!-- 預覽圖片區域 -->
       <div v-for="(image, index) in images" :key="index" class="image-preview">
         <img :src="image.src" alt="預覽圖片" />
         <button type="button" class="delete-btn" @click="removeItem(index)">
@@ -20,13 +21,22 @@
           <i class="bx bx-star"></i>
         </button>
       </div>
-    </div>
 
-    <div class="upload-container">
-      <input type="file" ref="fileInput" :disabled="isDisabled" accept="image/*" multiple />
-      <div class="upload-box" :class="{ disabled: isDisabled }" @click="triggerFileInput">
-        <i class="bx bx-cloud-upload"></i>
-        <span>上傳圖片</span>
+      <!-- 上傳區域 -->
+      <div class="upload-container">
+        <input
+          type="file"
+          @change="handleFileChange"
+          ref="fileInput"
+          :disabled="isDisabled"
+          accept="image/*"
+          multiple
+          required
+        />
+        <div class="upload-box" :class="{ disabled: isDisabled }" @click="triggerFileInput">
+          <i class="bx bx-cloud-upload"></i>
+          <span>上傳圖片</span>
+        </div>
       </div>
     </div>
   </div>
@@ -50,11 +60,49 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  maxImages: {
+    type: Number,
+    default: 5,
+  },
 })
 
 const triggerFileInput = () => {
   if (props.isDisabled) return
   fileInput.value.click()
+}
+
+const handleFileChange = (event) => {
+  if (props.isDisabled) return
+
+  const files = event.target.files
+  if (!files.length) return
+
+  const newImages = [...images.value]
+
+  const canAddCount = props.maxImages - newImages.length
+  if (canAddCount <= 0) {
+    console.log('已達到最大圖片數量')
+    return
+  }
+
+  // 限制上傳的圖片數量(FileList 是類陣列物件，不具有 slice 等陣列方法)
+  const filesToProcess = Array.from(files).slice(0, props.maxImages - newImages.length)
+
+  filesToProcess.forEach((file) => {
+    const reader = new FileReader()
+
+    reader.onload = (e) => {
+      newImages.push({
+        file,
+        src: e.target.result,
+        isMain: newImages.length === 0, // 第一張設為主圖
+      })
+      images.value = newImages
+    }
+    reader.readAsDataURL(files[0])
+  })
+
+  event.target.value = null // 重置 input 的值，讓同一張圖片可以重複上傳
 }
 
 const removeItem = (index) => {
@@ -99,8 +147,6 @@ label {
 
 .image-uploader {
   display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
   gap: 15px;
 }
 

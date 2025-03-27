@@ -10,12 +10,13 @@
         <i @click="changeShowEditor" class="bx bx-x-circle"></i>
       </div>
 
-      <form @submit.prevent class="product-editor__form">
+      <form @submit.prevent class="product-editor__form" enctype="multipart/form-data">
         <div class="form-group">
           <ImageUploader
             v-model:images="newProduct.images"
             :label="'商品圖上傳'"
             :isDisabled="isLoading"
+            :maxImages="5"
           />
         </div>
 
@@ -110,16 +111,7 @@ const newProduct = reactive({
   size: [],
   description: '',
   price: null,
-  images: [
-    {
-      src: 'http://localhost:8080/images/T-Short-86-0.jpeg',
-      isMain: true,
-    },
-    {
-      src: 'http://localhost:8080/images/T-Short-86-1.jpeg',
-      isMain: false,
-    },
-  ],
+  images: [],
 })
 
 const toast = reactive({
