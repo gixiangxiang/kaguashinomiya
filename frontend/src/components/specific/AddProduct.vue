@@ -10,7 +10,18 @@
         <i @click="changeShowEditor" class="bx bx-x-circle"></i>
       </div>
 
-      <form @submit.prevent class="product-editor__form">
+      <form @submit.prevent class="product-editor__form" enctype="multipart/form-data">
+        <div class="form-group">
+          <ImageUploader
+            v-model:images="newProduct.images"
+            :label="'商品圖上傳'"
+            :isDisabled="isLoading"
+            :maxImages="5"
+            :MAX_SIZE="1 * 1024 * 1024"
+            @show-toast="handleShowToast"
+          />
+        </div>
+
         <div class="form-group">
           <BaseInput
             v-model:inputModel="newProduct.name"
@@ -80,8 +91,21 @@ import BaseInput from '../BaseInput.vue'
 import SizePicker from '../SizePicker.vue'
 import ColorSelector from '../ColorSelector.vue'
 import ToastMessage from '../ToastMessage.vue'
-import { reactive, ref } from 'vue'
-import axios from 'axios'
+import ImageUploader from '../ImageUploader.vue'
+import { reactive, ref, watch } from 'vue'
+
+const emit = defineEmits(['submit-product'])
+
+const props = defineProps({
+  isLoading: {
+    type: Boolean,
+    default: false,
+  },
+  lastSubmitResult: {
+    type: Object,
+    default: null,
+  },
+})
 
 const newProduct = reactive({
   name: '',
@@ -89,16 +113,11 @@ const newProduct = reactive({
   size: [],
   description: '',
   price: null,
-  images: [
-    {
-      src: '123',
-      isMain: true,
-    },
-  ],
+  images: [],
 })
 
 const toast = reactive({
-  type: 'success',
+  type: '',
   message: '',
   show: false,
 })
@@ -106,47 +125,50 @@ const toast = reactive({
 const productSizeOptions = ref(['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'])
 const currentColor = ref('')
 const showEditor = ref(false)
-const isLoading = ref(false)
 
-const submitForm = async () => {
-  isLoading.value = true
-
+const submitForm = () => {
   if (
     !newProduct.name ||
     !newProduct.price ||
     !newProduct.description ||
     !newProduct.size.length ||
-    !newProduct.colors.length
+    !newProduct.colors.length ||
+    !newProduct.images.length
   ) {
-    toast.type = 'error'
-    toast.message = '請填寫所有欄位'
-    toast.show = true
-    isLoading.value = false
+    toastShow('error', '請填寫所有欄位')
     return
   }
 
-  try {
-    const response = await axios.post('/api/api/product/add', newProduct)
+  emit('submit-product', newProduct)
+}
 
-    if (response.status === 200) {
+watch(
+  () => props.lastSubmitResult,
+  (newResult) => {
+    if (!newResult) return
+
+    if (newResult.success) {
       clearForm()
-      toast.type = 'success'
-      toast.message = '商品新增成功'
-      toast.show = true
+      toastShow('success', '商品新增成功')
 
       showEditor.value = false
     } else {
-      alert('商品新增失敗')
+      toastShow('error', '商品新增失敗')
     }
-  } catch (err) {
-    toast.type = 'error'
-    toast.message = '商品新增失敗'
-    toast.show = true
+  },
+  { deep: true }
+)
 
-    console.error(err)
-  } finally {
-    isLoading.value = false
-  }
+const toastShow = (type, message) => {
+  toast.type = type
+  toast.message = message
+  toast.show = true
+  setTimeout(() => (toast.show = false), 2000)
+}
+
+const handleShowToast = (toastData) => {
+  // 圖片上傳張數超過限制顯示訊息
+  toastShow(toastData.type, toastData.message)
 }
 
 const addSelectedColor = (color) => {
@@ -170,6 +192,7 @@ const clearForm = () => {
   newProduct.size = []
   newProduct.description = ''
   newProduct.price = null
+  newProduct.images = []
 }
 </script>
 
@@ -184,8 +207,8 @@ const clearForm = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   border: none;
   background: #2e3748;
@@ -224,12 +247,17 @@ const clearForm = () => {
   border-radius: 12px;
   box-shadow: 0 5px 15px #00000033;
   overflow-y: auto;
+  flex-direction: column;
 
   &__header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid #ccc;
+    background-color: #fff;
     padding: 20px;
 
     h2 {
