@@ -25,12 +25,13 @@ import { ref, computed, onMounted } from 'vue'
 const products = ref([]) // 存儲 API 獲取產品數據
 const isLoading = ref(false)
 const lastSubmitResult = ref(null)
-const searchQuery = ref('') // 搜尋關鍵字
+const selectedProductId = ref(null) // 默認選中的產品 ID
 
 const fetchAllProducts = async () => {
   try {
     const data = await productApi.getAllProducts()
     products.value = data
+    selectedProductId.value = data[0]?.id
   } catch (err) {
     console.error(`獲取產品失敗:${err}`)
   }
@@ -76,9 +77,6 @@ const handleSearch = async (keyword) => {
 }
 
 onMounted(fetchAllProducts)
-
-// 默認選中的產品 ID
-const selectedProductId = ref(1)
 
 // 計算屬性：當前選中的產品 (用於傳入產品展示區)
 const selectedProduct = computed(() => {
