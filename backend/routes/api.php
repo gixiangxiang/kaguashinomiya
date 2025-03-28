@@ -91,8 +91,8 @@ Route::get('/products-json/all', function () {
     ];
   });
   $encodeData = json_encode($result, JSON_UNESCAPED_UNICODE);
-
   error_log("result data:" . $encodeData);
+  return response()->json(['products' => $result]);
 });
 
 //關鍵字搜尋商品
