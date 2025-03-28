@@ -11,6 +11,20 @@ export const productApi = {
     }
   },
 
+  // 搜尋產品
+  searchProducts: async (keyword) => {
+    try {
+      const response = await axios.get(`/api/api/product/search`, {
+        params: {
+          keyword: encodeURIComponent(keyword),
+        },
+      })
+      return response.data.products
+    } catch (error) {
+      throw error
+    }
+  },
+
   // 新增產品
   addProduct: async (product) => {
     try {
