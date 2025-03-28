@@ -2,14 +2,12 @@
   <section class="product-list">
     <div class="product-header">
       <h2 class="product-title">更多潮流動漫服飾</h2>
-      <div class="product-search">
-        <label for="search-input">搜尋產品：</label>
-        <input id="search-input" type="text" class="search-input" placeholder="搜尋商品..." />
-      </div>
+      <SearchInput @search="handleSearch" />
     </div>
 
     <div v-if="isLoading" class="loading">資料載入中...</div>
     <div v-else-if="products.length === 0" class="no-products">暫無商品</div>
+
     <ul class="product-grid">
       <li v-for="product in products" :key="product.id" class="product-card">
         <div @click="selectProduct(product.id)" class="image-wrapper">
@@ -27,6 +25,7 @@
 </template>
 
 <script setup>
+import SearchInput from '../SearchInput.vue'
 import { ref } from 'vue'
 
 // 聲明接收的 props
@@ -38,7 +37,7 @@ const props = defineProps({
 })
 
 // 聲明向父組件發出的事件
-const emit = defineEmits(['select-product'])
+const emit = defineEmits(['select-product', 'search'])
 
 const isLoading = ref(false) // 是否載入中 (先預設為 false 等API測試再改為 true)
 
@@ -55,6 +54,10 @@ const selectProduct = (productId) => {
     top: 0,
     behavior: 'smooth',
   })
+}
+
+const handleSearch = (keyword) => {
+  emit('search', keyword)
 }
 </script>
 
@@ -111,26 +114,6 @@ const selectProduct = (productId) => {
     }
   }
 
-  .search-input {
-    padding: 10px 16px;
-    border: none;
-    outline: none;
-    border-radius: 5px;
-    box-shadow: inset 0 0 5px 1px rgba(0, 0, 0, 0.2);
-    color: #2e3748;
-    font-size: 0.95rem;
-    min-width: 200px;
-    transition: box-shadow 0.3s ease;
-
-    &:focus {
-      box-shadow: inset 0 0 6px 1px rgba(46, 55, 72, 0.3);
-    }
-
-    &::placeholder {
-      color: #aaa;
-      opacity: 0.8;
-    }
-  }
   .loading {
     font-size: 1.125rem;
     font-weight: 600;

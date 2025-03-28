@@ -1,7 +1,11 @@
 <template>
   <Header />
   <ProductDisplay v-if="selectedProduct" :product="selectedProduct" />
-  <ProductList :products="products" @select-product="changeSelectedProduct" />
+  <ProductList
+    :products="products"
+    @select-product="changeSelectedProduct"
+    @search="handleSearch"
+  />
   <AddProduct
     @submit-product="handleAddProduct"
     :isLoading="isLoading"
@@ -21,6 +25,7 @@ import { ref, computed, onMounted } from 'vue'
 const products = ref([]) // 存儲 API 獲取產品數據
 const isLoading = ref(false)
 const lastSubmitResult = ref(null)
+const searchQuery = ref('') // 搜尋關鍵字
 
 const fetchAllProducts = async () => {
   try {
@@ -43,6 +48,24 @@ const handleAddProduct = async (newProduct) => {
   } catch (err) {
     lastSubmitResult.value = { success: false }
     console.error(`新增產品失敗：${err}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const handleSearch = async (keyword) => {
+  // 如果搜尋為空，顯示所有產品
+  if (!keyword.trim()) {
+    await fetchAllProducts()
+    return
+  }
+
+  try {
+    isLoading.value = true
+    const data = await productApi.searchProducts(keyword)
+    products.value = data
+  } catch (err) {
+    console.error(`搜尋產品失敗:${err}`)
   } finally {
     isLoading.value = false
   }
