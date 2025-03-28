@@ -90,10 +90,16 @@ Route::get('/products-json/all', function () {
       }),
     ];
   });
+  $encodeData = json_encode($result, JSON_UNESCAPED_UNICODE);
 
-  //搜尋商品
-  Route::get('/product/search/{name}', function ($name) {
-    $products = product::where('name', 'like', '%' . $name . '%')->get();
+  error_log("result data:" . $encodeData);
+});
+
+//關鍵字搜尋商品
+Route::get('/product/search', function (Request $request) {
+  $keyword = $request->input('keyword', '');
+  try {
+    $products = product::where('name', 'like', '%' . $keyword . '%')->get();
     $result = $products->map(function ($product) {
       $images = products_image::where('product_id', $product->id)->get();
       // 將字串形式的陣列轉換為實際PHP陣列
@@ -116,12 +122,9 @@ Route::get('/products-json/all', function () {
         }),
       ];
     });
-    return response()->json(['products' => $result]);
-  });
-
-  $encodeData = json_encode($result, JSON_UNESCAPED_UNICODE);
-
-  error_log("result data:" . $encodeData);
+  } catch (\Exception $e) {
+    return response('Product search failed:' . $e, 500);
+  }
   return response()->json(['products' => $result]);
 });
 
