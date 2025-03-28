@@ -55,7 +55,7 @@ const handleAddProduct = async (newProduct) => {
 
 const handleSearch = async (keyword) => {
   // 如果搜尋為空，顯示所有產品
-  if (!keyword.trim()) {
+  if (keyword === '') {
     await fetchAllProducts()
     return
   }
@@ -64,6 +64,10 @@ const handleSearch = async (keyword) => {
     isLoading.value = true
     const data = await productApi.searchProducts(keyword)
     products.value = data
+
+    if (data && data.length > 0) {
+      selectedProductId.value = data[0].id // 如果有搜尋結果，選中第一個產品
+    }
   } catch (err) {
     console.error(`搜尋產品失敗:${err}`)
   } finally {

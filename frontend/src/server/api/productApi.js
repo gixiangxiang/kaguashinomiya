@@ -16,7 +16,7 @@ export const productApi = {
     try {
       const response = await axios.get(`/api/api/product/search`, {
         params: {
-          keyword: encodeURIComponent(keyword),
+          keyword: keyword,
         },
       })
       return response.data.products

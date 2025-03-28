@@ -22,7 +22,6 @@ const searchQuery = ref('')
 const { debounce } = useDebounce()
 
 const handleSearch = () => {
-  if (searchQuery.value === '') return
   emit('search', searchQuery.value)
 }
 
