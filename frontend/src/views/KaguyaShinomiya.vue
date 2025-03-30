@@ -5,11 +5,16 @@
     :products="products"
     @select-product="changeSelectedProduct"
     @search="handleSearch"
+    @edit-product="handleEditProduct"
   />
-  <AddProduct
+  <ProductEditor
     @submit-product="handleAddProduct"
+    @cancel-edit="cancelEdit"
+    @update-product="handleUpdateProduct"
     :isLoading="isLoading"
     :lastSubmitResult="lastSubmitResult"
+    :editMode="editMode"
+    :productToEdit="productToEdit"
   />
 </template>
 
@@ -17,7 +22,7 @@
 import Header from '@/components/Header.vue'
 import ProductDisplay from '@/components/specific/ProductDisplay.vue'
 import ProductList from '@/components/specific/ProductList.vue'
-import AddProduct from '../components/specific/AddProduct.vue'
+import ProductEditor from '../components/specific/ProductEditor.vue'
 import { productApi } from '../server/api/productApi'
 
 import { ref, computed, onMounted } from 'vue'
@@ -25,14 +30,49 @@ import { ref, computed, onMounted } from 'vue'
 const products = ref([]) // 存儲 API 獲取產品數據
 const isLoading = ref(false)
 const lastSubmitResult = ref(null)
-const searchQuery = ref('') // 搜尋關鍵字
+const selectedProductId = ref(null) // 默認選中的產品 ID
+const editMode = ref(false) // 編輯模式開關
+const productToEdit = ref(null) // 編輯的產品數據
+
+const handleEditProduct = (product) => {
+  editMode.value = true
+  productToEdit.value = product
+}
+
+const cancelEdit = () => {
+  editMode.value = false
+  productToEdit.value = null
+}
 
 const fetchAllProducts = async () => {
   try {
     const data = await productApi.getAllProducts()
     products.value = data
+    selectedProductId.value = data[0]?.id
   } catch (err) {
     console.error(`獲取產品失敗:${err}`)
+  }
+}
+
+const handleSearch = async (keyword) => {
+  // 如果搜尋為空，顯示所有產品
+  if (keyword === '') {
+    await fetchAllProducts()
+    return
+  }
+
+  try {
+    isLoading.value = true
+    const data = await productApi.searchProducts(keyword)
+    products.value = data
+
+    if (data && data.length > 0) {
+      selectedProductId.value = data[0].id // 如果有搜尋結果，選中第一個產品
+    }
+  } catch (err) {
+    console.error(`搜尋產品失敗:${err}`)
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -53,28 +93,23 @@ const handleAddProduct = async (newProduct) => {
   }
 }
 
-const handleSearch = async (keyword) => {
-  // 如果搜尋為空，顯示所有產品
-  if (!keyword.trim()) {
-    await fetchAllProducts()
-    return
-  }
-
+const handleUpdateProduct = async (updatedProduct) => {
+  isLoading.value = true
+  lastSubmitResult.value = null
   try {
-    isLoading.value = true
-    const data = await productApi.searchProducts(keyword)
-    products.value = data
+    await productApi.updateProduct(updatedProduct)
+    await fetchAllProducts()
+
+    lastSubmitResult.value = { success: true }
   } catch (err) {
-    console.error(`搜尋產品失敗:${err}`)
+    lastSubmitResult.value = { success: false }
+    console.error(`編輯產品失敗：${err}`)
   } finally {
     isLoading.value = false
   }
 }
 
 onMounted(fetchAllProducts)
-
-// 默認選中的產品 ID
-const selectedProductId = ref(1)
 
 // 計算屬性：當前選中的產品 (用於傳入產品展示區)
 const selectedProduct = computed(() => {
