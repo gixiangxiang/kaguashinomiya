@@ -16,7 +16,7 @@
         <h5 class="product-name">{{ product.name }}</h5>
         <p class="product-price">NT$ {{ product.price.toLocaleString() }}</p>
         <div class="product-actions">
-          <button class="edit-btn">編輯</button>
+          <button class="edit-btn" @click.stop="editProduct(product)">編輯</button>
           <button class="delete-btn">刪除</button>
         </div>
       </li>
@@ -37,9 +37,13 @@ const props = defineProps({
 })
 
 // 聲明向父組件發出的事件
-const emit = defineEmits(['select-product', 'search'])
+const emit = defineEmits(['select-product', 'search', 'edit-product'])
 
 const isLoading = ref(false) // 是否載入中 (先預設為 false 等API測試再改為 true)
+
+const editProduct = (product) => {
+  emit('edit-product', product)
+}
 
 const getProductMainImage = (product) => {
   // 找出商品的主要圖片

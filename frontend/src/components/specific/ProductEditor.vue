@@ -6,7 +6,7 @@
   <section v-if="showEditor" class="product-editor-wrapper">
     <div class="product-editor">
       <div class="product-editor__header">
-        <h2>新增商品</h2>
+        <h2>{{ editMode ? '編輯商品' : '新增產品' }}</h2>
         <i @click="changeShowEditor" class="bx bx-x-circle"></i>
       </div>
 
@@ -73,10 +73,16 @@
 
         <div class="form-actions">
           <button @click="clearForm" type="button" class="clear-btn">清除</button>
-          <button @click="submitForm" type="submit" class="save-btn">
+          <button
+            @click="submitForm"
+            type="submit"
+            class="save-btn"
+            :disabled="props.editMode && !hasChanges"
+            :class="{ disabled: props.editMode && !hasChanges }"
+          >
             <span v-if="!isLoading">儲存商品</span>
             <span v-else class="loading-text">
-              新增中
+              {{ editMode ? '新增中' : '新增中' }}
               <span class="spinner"></span>
             </span>
           </button>
@@ -94,7 +100,7 @@ import ToastMessage from '../ToastMessage.vue'
 import ImageUploader from '../ImageUploader.vue'
 import { reactive, ref, watch } from 'vue'
 
-const emit = defineEmits(['submit-product'])
+const emit = defineEmits(['submit-product', 'update-product'])
 
 const props = defineProps({
   isLoading: {
@@ -102,6 +108,14 @@ const props = defineProps({
     default: false,
   },
   lastSubmitResult: {
+    type: Object,
+    default: null,
+  },
+  editMode: {
+    type: Boolean,
+    default: false,
+  },
+  productToEdit: {
     type: Object,
     default: null,
   },
@@ -125,6 +139,81 @@ const toast = reactive({
 const productSizeOptions = ref(['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'])
 const currentColor = ref('')
 const showEditor = ref(false)
+const originalProduct = ref(null) // 用於存儲原始產品數據
+const hasChanges = ref(false) // 用於檢查是否有變更
+
+watch(
+  () => props.productToEdit,
+  (editedProduct) => {
+    if (props.editMode && editedProduct) {
+      newProduct.name = editedProduct.name
+      newProduct.price = editedProduct.price
+      newProduct.description = editedProduct.description
+      newProduct.size = [...editedProduct.size]
+      newProduct.colors = [...editedProduct.colors]
+
+      // 複製圖片陣列
+      if (editedProduct.images) {
+        newProduct.images = JSON.parse(JSON.stringify(editedProduct.images))
+      }
+
+      // 保存原始資料副本之後比較
+      originalProduct.value = JSON.parse(
+        JSON.stringify({
+          name: editedProduct.name,
+          price: editedProduct.price,
+          description: editedProduct.description,
+          size: [...editedProduct.size],
+          colors: [...editedProduct.colors],
+          images: JSON.parse(JSON.stringify(editedProduct.images)),
+        })
+      )
+
+      hasChanges.value = false // 初始狀態無變化
+      showEditor.value = true
+    }
+  },
+  { immediate: true }
+)
+
+watch(
+  () => JSON.stringify(newProduct),
+  () => {
+    if (props.editMode && originalProduct.value) {
+      const currentValue = JSON.stringify({
+        name: newProduct.name,
+        price: newProduct.price,
+        description: newProduct.description,
+        size: [...newProduct.size],
+        colors: [...newProduct.colors],
+        images: JSON.parse(JSON.stringify(newProduct.images)),
+      })
+
+      const originalValue = JSON.stringify(originalProduct.value)
+      hasChanges.value = currentValue !== originalValue
+    } else {
+      hasChanges.value = true // 如果不是編輯模式，則始終設置為 true
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  () => props.lastSubmitResult,
+  (newResult) => {
+    if (!newResult) return
+
+    if (newResult.success) {
+      clearForm()
+      toastShow('success', props.editMode ? '商品編輯成功' : '商品新增成功')
+
+      showEditor.value = false
+    } else {
+      toastShow('error', props.editMode ? '商品編輯失敗' : '商品新增失敗')
+    }
+  },
+  { deep: true }
+)
 
 const submitForm = () => {
   if (
@@ -139,25 +228,12 @@ const submitForm = () => {
     return
   }
 
-  emit('submit-product', newProduct)
+  if (!props.editMode) {
+    emit('submit-product', newProduct)
+  } else {
+    emit('update-product', { ...newProduct, id: props.productToEdit.id })
+  }
 }
-
-watch(
-  () => props.lastSubmitResult,
-  (newResult) => {
-    if (!newResult) return
-
-    if (newResult.success) {
-      clearForm()
-      toastShow('success', '商品新增成功')
-
-      showEditor.value = false
-    } else {
-      toastShow('error', '商品新增失敗')
-    }
-  },
-  { deep: true }
-)
 
 const toastShow = (type, message) => {
   toast.type = type
@@ -184,6 +260,14 @@ const removeSelectedColor = (index) => {
 
 const changeShowEditor = () => {
   showEditor.value = !showEditor.value
+
+  if (!showEditor.value) {
+    // 如果是編輯模式，發送取消編輯事件
+    if (props.editMode) {
+      emit('cancel-edit')
+    }
+    clearForm()
+  }
 }
 
 const clearForm = () => {
@@ -316,6 +400,11 @@ const clearForm = () => {
     color: white;
     border: none;
 
+    &.disabled {
+      opacity: 0.6;
+      cursor: no-drop;
+    }
+
     .loading-text {
       display: flex;
       align-items: center;
@@ -337,10 +426,6 @@ const clearForm = () => {
       to {
         transform: rotate(360deg);
       }
-    }
-
-    &:hover {
-      background-color: #3a4a63;
     }
   }
 }

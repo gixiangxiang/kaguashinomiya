@@ -12,7 +12,7 @@ const processProductImages = (product) => {
       img.src = `${imageBaseUrl}/${img.src}`
     })
   } else {
-    throw new Error('Invalid product data')
+    throw new Error('無效的產品數據')
   }
   return product
 }
@@ -86,6 +86,39 @@ export const productApi = {
       const response = await apiClient.post('/api/api/product/add', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // 編輯產品
+  updateProduct: async (product) => {
+    try {
+      const formData = new FormData()
+
+      const jsonData = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        description: product.description,
+        size: product.size,
+        colors: product.colors,
+      }
+
+      const mainImage = product.images.find((img) => img.isMain)
+      const otherImages = product.images.filter((img) => !img.isMain)
+
+      formData.append('jsonData', JSON.stringify(jsonData))
+      formData.append('mainImage', mainImage.file)
+      otherImages.forEach((img, index) => {
+        formData.append(`images[${index}]`, img.file)
+      })
+
+      const response = await apiClient.post(`/api/api/product/update`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+
       return response.data
     } catch (error) {
       throw error
