@@ -140,8 +140,8 @@ Route::post('/product/add', function (Request $request) {
   // 驗證請求資料
   $validator = Validator::make($request->all(), [
     'jsonData' => 'required|json',
-    'mainImage' => 'required|file|mimes:jpeg,png,jpg,gif', // 主圖片驗證
-    'images.*' => 'file|mimes:jpeg,png,jpg,gif', // 副圖片驗證
+    'mainImage' => 'required|file|mimes:jpeg,png,jpg,gif,webp', // 主圖片驗證
+    'images.*' => 'file|mimes:jpeg,png,jpg,gif,webp', // 副圖片驗證
   ]);
 
   if ($validator->fails()) {
