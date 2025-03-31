@@ -31,6 +31,18 @@ const debounceSearch = debounce(() => {
 </script>
 
 <style lang="scss" scoped>
+.product-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap; // 允許在需要時換行
+
+  label {
+    white-space: nowrap; // 防止標籤文字斷行
+    margin-right: 5px;
+  }
+}
+
 .search-input {
   padding: 10px 16px;
   border: none;
@@ -49,6 +61,23 @@ const debounceSearch = debounce(() => {
   &::placeholder {
     color: #aaa;
     opacity: 0.8;
+  }
+}
+
+@media (max-width: 576px) {
+  .product-search {
+    // flex-direction: column; // 垂直排列
+    align-items: flex-start;
+    width: 100%;
+
+    label {
+      margin-bottom: 4px;
+    }
+
+    .search-input {
+      width: 100%;
+      max-width: 100%; // 在手機上佔滿容器寬度
+    }
   }
 }
 </style>
