@@ -159,20 +159,23 @@ Route::post('/product/add', function (Request $request) {
     $product->price = $jsonData['price'];
     $product->save();
 
+    $currentId = 0;
     //主圖片
     $imageNames = [];
     $mainImage = $request->file('mainImage');
-    $mainImageName = date('YmdHis') . '_main.' . $mainImage->extension();
+    $mainImageName = date('YmdHis') . "_$currentId." . $mainImage->extension();
     $mainImage->move(public_path('images'), $mainImageName);
     array_push($imageNames, $mainImageName);
+    $currentId++;
 
     // 儲存副圖片
     $otherImages = $request->file('images');
     if ($otherImages) {
-      foreach ($otherImages as $index => $image) {
-        $imageName = date('YmdHis') . "_{$index}." . $image->extension();
+      foreach ($otherImages as $image) {
+        $imageName = date('YmdHis') . "_$currentId." . $image->extension();
         $image->move(public_path('images'), $imageName);
         array_push($imageNames, $imageName);
+        $currentId++;
       }
     }
 
@@ -216,79 +219,6 @@ Route::post('/product/images/testUpload', function (Request $request) {
 
 #region 更新商品
 //更新商品
-Route::post('/product/updates', function (Request $request) {
-  // 驗證請求資料
-  $validator = Validator::make($request->all(), [
-    'jsonData' => 'required|json',
-    'mainImage' => 'file|mimes:jpeg,png,jpg,gif,webp', // 主圖片驗證
-    'images.*' => 'file|mimes:jpeg,png,jpg,gif,webp', // 副圖片驗證
-  ]);
-
-  if ($validator->fails()) {
-    return response($validator->errors(), 400);
-  }
-  try {
-    // 解析 JSON 資料
-    $jsonData = json_decode($request->input('jsonData'), true);
-    //商品資料
-    $product = product::find($jsonData['id']);
-    if (!$product) {
-      return response('Product not found', 404);
-    }
-    $product->name = $jsonData['name'];
-    $product->colors = json_encode($jsonData['colors']);
-    $product->size = json_encode($jsonData['size']);
-    $product->description = $jsonData['description'];
-    $product->price = $jsonData['price'];
-    $product->save();
-
-    // 刪除舊的圖片與資料庫資料
-    $oldImages = products_image::where('product_id', $product->id)->get();
-    foreach ($oldImages as $oldImage) {
-      $oldImagePath = public_path('images/' . $oldImage->src);
-      if (file_exists($oldImagePath)) {
-        unlink($oldImagePath); // 刪除舊圖片
-      }
-      $oldImage->delete(); // 刪除資料庫記錄
-    }
-
-    $imageNames = [];
-
-    // 處理主圖片
-    $mainImage = $request->file('mainImage');
-    $mainImageName = date('YmdHis') . '_main.' . $mainImage->extension();
-    $mainImage->move(public_path('images'), $mainImageName);
-    array_push($imageNames, $mainImageName);
-
-    // 副圖片
-    if ($request->hasFile('images')) {
-      $otherImages = $request->file('images');
-      if ($otherImages) {
-        foreach ($otherImages as $index => $image) {
-          $imageName = date('YmdHis') . "_{$index}." . $image->extension();
-          $image->move(public_path('images'), $imageName);
-          array_push($imageNames, $imageName);
-        }
-      }
-    }
-
-
-
-    //儲存圖片資料
-    foreach ($imageNames as $imageName) {
-      $product_image = new products_image();
-      $product_image->src = $imageName;
-      $product_image->isMain = $imageName == $mainImageName ? 1 : 0;
-      $product_image->product_id = $product->id;
-      $product_image->save();
-    }
-    return response('Product updated successed', 200);
-  } catch (\Exception $e) {
-    return response('Product updated failed:' . $e, 500);
-  }
-});
-
-//更新商品2.0
 Route::post('/product/update', function (Request $request) {
   // 驗證請求資料
   $validator = Validator::make($request->all(), [
@@ -326,14 +256,17 @@ Route::post('/product/update', function (Request $request) {
     if ($request->file('mainImage')) {
       $currentId = $lastId + 1;
       $mainImage = $request->file('mainImage');
-      $mainImageName = date('YmdHis') . "_$currentId" . $mainImage->extension();
+      $mainImageName = date('YmdHis') . "_$currentId." . $mainImage->extension();
       $mainImage->move(public_path('images'), $mainImageName);
       saveProductImage($product->id, $mainImageName, 1); //儲存圖片資料
       $lastId++;
-    } else if (!$request->file('mainImage') && !nullOrEmptyString($images['originalImage'])) {
-      cleanMainImage($product->id); //清除原本ismain為1的圖片
-      //如果沒有上傳主圖片，則使用原始圖片，ismain設為1
-      saveProductImage($product->id, $images['originalImage'], 1);
+    } else if (!$request->file('mainImage')) {
+      $roriginalImage = products_image::where('product_id', $product->id)->where('isMain', 1)->get();
+      if($roriginalImage->src !== $images['originalImage']){        
+        cleanMainImage($product->id); //清除原本ismain為1的圖片
+        //如果沒有上傳主圖片，則使用原始圖片，ismain設為1
+        saveProductImage($product->id, $images['originalImage'], 1);
+      }
     }
 
     // 刪除舊的圖片與資料庫資料    
@@ -357,7 +290,7 @@ Route::post('/product/update', function (Request $request) {
       if ($otherImages) {
         foreach ($otherImages as $image) {
           $currentId = $lastId + 1;
-          $imageName = date('YmdHis') . "_$currentId" . $image->extension();
+          $imageName = date('YmdHis') . "_$currentId." . $image->extension();
           $image->move(public_path('images'), $imageName);
           array_push($imageNames, $imageName);
           $lastId++;
@@ -395,7 +328,8 @@ function saveProductImage($productId, $imageName, $isMain)
 }
 
 // 輔助函數：檢查字串是否為 null 或空
-function nullOrEmptyString($str) {
+function nullOrEmptyString($str)
+{
   return ($str === null || trim($str) === '');
 }
 
