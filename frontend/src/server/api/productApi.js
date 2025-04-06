@@ -103,7 +103,7 @@ export const productApi = {
       // 計算要保留的現有副圖
       const retainedImages = otherImages
         .filter((img) => !img.file && img.src)
-        .map((img) => (img.src = img.src.replace(`${imageBaseUrl}/, ''}`)))
+        .map((img) => img.src.replace(`${imageBaseUrl}/`, ''))
 
       const jsonData = {
         id: product.id,
@@ -134,7 +134,17 @@ export const productApi = {
       newOtherImages.forEach((img, index) => {
         formData.append(`newImages[${index}]`, img.file)
       })
+
+      const response = await apiClient.post('/api/api/product/update', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      return response.data
     } catch (error) {
+      console.error('更新產品時發生錯誤:', error)
+      if (error.response) {
+        console.error('回應狀態:', error.response.status)
+        console.error('回應資料:', error.response.data)
+      }
       throw error
     }
   },
