@@ -97,6 +97,14 @@ export const productApi = {
     try {
       const formData = new FormData()
 
+      const mainImage = product.images.find((img) => img.isMain)
+      const otherImages = product.images.filter((img) => !img.isMain)
+
+      // 計算要保留的現有副圖
+      const retainedImages = otherImages
+        .filter((img) => !img.file && img.src)
+        .map((img) => (img.src = img.src.replace(`${imageBaseUrl}/, ''}`)))
+
       const jsonData = {
         id: product.id,
         name: product.name,
@@ -104,22 +112,28 @@ export const productApi = {
         description: product.description,
         size: product.size,
         colors: product.colors,
+        images: {
+          // 如果主圖是現有圖片，傳遞檔名
+          originalImage:
+            mainImage && !mainImage.file && mainImage.src
+              ? mainImage.src.replace(`${imageBaseUrl}/`, '')
+              : '',
+          retainedImages: retainedImages, // 保留的副圖檔名列表
+        },
       }
 
-      const mainImage = product.images.find((img) => img.isMain)
-      const otherImages = product.images.filter((img) => !img.isMain)
-
       formData.append('jsonData', JSON.stringify(jsonData))
-      formData.append('mainImage', mainImage.file)
-      otherImages.forEach((img, index) => {
-        formData.append(`images[${index}]`, img.file)
-      })
 
-      const response = await apiClient.post(`/api/api/product/update`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
+      // 處理新上傳的主圖檔案
+      if (mainImage && mainImage.file) {
+        formData.append('mainImage', mainImage.file)
+      }
 
-      return response.data
+      // 處理新上傳的副圖檔案
+      const newOtherImages = otherImages.filter((img) => img.file)
+      newOtherImages.forEach((img, index) => {
+        formData.append(`newImages[${index}]`, img.file)
+      })
     } catch (error) {
       throw error
     }

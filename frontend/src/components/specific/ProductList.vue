@@ -70,6 +70,7 @@ const handleSearch = (keyword) => {
   width: 100%;
   padding: 60px;
   border-top: 1px solid #ccc;
+  margin-top: 50px;
 
   .product-header {
     display: flex;

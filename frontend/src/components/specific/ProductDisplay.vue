@@ -144,6 +144,27 @@ watch(
     gap: 10px;
     margin-top: 10px;
 
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch; // 支援iOS滑動慣性
+    scroll-behavior: smooth; // 平滑滾動
+    flex-wrap: nowrap; // 確保不換行
+    padding-bottom: 10px; // 為滾動條預留空間
+
+    // 隱藏滾動條但保留功能
+    &::-webkit-scrollbar {
+      height: 4px; // 較窄的滾動條
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 2px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 2px;
+    }
+
     img {
       width: 80px;
       height: 80px;
@@ -283,6 +304,7 @@ watch(
     line-height: 1.6;
     color: #4a5568;
     margin-bottom: 16px;
+    white-space: pre-wrap;
   }
 
   ul {

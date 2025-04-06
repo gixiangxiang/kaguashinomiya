@@ -142,6 +142,7 @@ const showEditor = ref(false)
 const originalProduct = ref(null) // 用於存儲原始產品數據
 const hasChanges = ref(false) // 用於檢查是否有變更
 
+// 初始化數據
 watch(
   () => props.productToEdit,
   (editedProduct) => {
@@ -176,6 +177,7 @@ watch(
   { immediate: true }
 )
 
+// 偵測變化
 watch(
   () => JSON.stringify(newProduct),
   () => {
