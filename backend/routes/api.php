@@ -394,5 +394,10 @@ function saveProductImage($productId, $imageName, $isMain)
   $product_image->save();
 }
 
+// 輔助函數：檢查字串是否為 null 或空
+function nullOrEmptyString($str) {
+  return ($str === null || trim($str) === '');
+}
+
 
 #endregion
