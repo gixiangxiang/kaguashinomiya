@@ -216,11 +216,11 @@ Route::post('/product/images/testUpload', function (Request $request) {
 
 #region 更新商品
 //更新商品
-Route::post('/product/update', function (Request $request) {
+Route::post('/product/updates', function (Request $request) {
   // 驗證請求資料
   $validator = Validator::make($request->all(), [
     'jsonData' => 'required|json',
-    'mainImage' => 'required|file|mimes:jpeg,png,jpg,gif,webp', // 主圖片驗證
+    'mainImage' => 'file|mimes:jpeg,png,jpg,gif,webp', // 主圖片驗證
     'images.*' => 'file|mimes:jpeg,png,jpg,gif,webp', // 副圖片驗證
   ]);
 
@@ -272,6 +272,8 @@ Route::post('/product/update', function (Request $request) {
       }
     }
 
+
+
     //儲存圖片資料
     foreach ($imageNames as $imageName) {
       $product_image = new products_image();
@@ -285,4 +287,112 @@ Route::post('/product/update', function (Request $request) {
     return response('Product updated failed:' . $e, 500);
   }
 });
+
+//更新商品2.0
+Route::post('/product/update', function (Request $request) {
+  // 驗證請求資料
+  $validator = Validator::make($request->all(), [
+    'jsonData' => 'required|json',
+    'mainImage' => 'file|mimes:jpeg,png,jpg,gif,webp', // 主圖片驗證
+    'images.*' => 'file|mimes:jpeg,png,jpg,gif,webp', // 副圖片驗證
+  ]);
+
+  if ($validator->fails()) {
+    return response($validator->errors(), 400);
+  }
+  try {
+    // 解析 JSON 資料
+    $jsonData = json_decode($request->input('jsonData'), true);
+
+    //商品資料
+    $product = product::find($jsonData['id']);
+    if (!$product) {
+      return response('Product not found', 404);
+    }
+    $product->name = $jsonData['name'];
+    $product->colors = json_encode($jsonData['colors']);
+    $product->size = json_encode($jsonData['size']);
+    $product->description = $jsonData['description'];
+    $product->price = $jsonData['price'];
+    $product->save();
+
+    //圖片資料
+    $imageNames = [];
+    $images = $jsonData['images'];
+    $dbImages = products_image::where('product_id', $product->id)->get();
+    $lastId = intval(explode('.', explode('_', $dbImages[count($dbImages) - 1])[1])[0]);
+
+    //主圖片處裡
+    if ($request->file('mainImage')) {
+      $currentId = $lastId + 1;
+      $mainImage = $request->file('mainImage');
+      $mainImageName = date('YmdHis') . "_$currentId" . $mainImage->extension();
+      $mainImage->move(public_path('images'), $mainImageName);
+      saveProductImage($product->id, $mainImageName, 1); //儲存圖片資料
+      $lastId++;
+    } else if (!$request->file('mainImage') && !nullOrEmptyString($images['originalImage'])) {
+      cleanMainImage($product->id); //清除原本ismain為1的圖片
+      //如果沒有上傳主圖片，則使用原始圖片，ismain設為1
+      saveProductImage($product->id, $images['originalImage'], 1);
+    }
+
+    // 刪除舊的圖片與資料庫資料    
+    $retainedImages = $images['retainedImages']; //保留的圖片名陣列
+    $dbSecondaryImages = products_image::where('product_id', $product->id)->where('isMain', 0)->get();
+    foreach ($dbSecondaryImages as $dbSecondaryImage) {
+      // 檢查此圖片是否在保留列表中
+      if (!in_array($dbSecondaryImage->src, $retainedImages)) {
+        // 不在保留列表中，需要刪除圖片檔案
+        $oldImagePath = public_path('images/' . $dbSecondaryImage->src);
+        if (file_exists($oldImagePath)) {
+          unlink($oldImagePath); // 刪除實體檔案
+        }
+        $dbSecondaryImage->delete(); // 刪除資料庫記錄
+      }
+    }
+
+    // 新副圖片
+    if ($request->hasFile('images')) {
+      $otherImages = $request->file('images');
+      if ($otherImages) {
+        foreach ($otherImages as $image) {
+          $currentId = $lastId + 1;
+          $imageName = date('YmdHis') . "_$currentId" . $image->extension();
+          $image->move(public_path('images'), $imageName);
+          array_push($imageNames, $imageName);
+          $lastId++;
+        }
+      }
+    }
+    //儲存副圖片資料
+    foreach ($imageNames as $imageName) {
+      saveProductImage($product->id, $imageName, 0);
+    }
+    return response('Product updated successed', 200);
+  } catch (\Exception $e) {
+    return response('Product updated failed:' . $e, 500);
+  }
+});
+
+
+function cleanMainImage($productId)
+{
+  //原本ismain為1的圖片設為0
+  $dbMainImage = products_image::where('product_id', $productId)->where('isMain', 1);
+  if ($dbMainImage) {
+    $dbMainImage->isMain = 0;
+    $dbMainImage->save();
+  }
+}
+
+function saveProductImage($productId, $imageName, $isMain)
+{
+  $product_image = new products_image();
+  $product_image->src = $imageName;
+  $product_image->isMain = $isMain;
+  $product_image->product_id = $productId;
+  $product_image->save();
+}
+
+
 #endregion
