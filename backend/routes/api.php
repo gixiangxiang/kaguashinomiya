@@ -247,7 +247,6 @@ Route::post('/product/update', function (Request $request) {
     $product->save();
 
     //圖片資料
-    $imageNames = [];
     $images = $jsonData['images'];
     $dbImages = products_image::where('product_id', $product->id)->get();
     $lastId = intval(explode('.', explode('_', $dbImages[count($dbImages) - 1])[1])[0]);
@@ -261,8 +260,8 @@ Route::post('/product/update', function (Request $request) {
       saveProductImage($product->id, $mainImageName, 1); //儲存圖片資料
       $lastId++;
     } else if (!$request->file('mainImage')) {
-      $roriginalImage = products_image::where('product_id', $product->id)->where('isMain', 1)->get();
-      if($roriginalImage->src !== $images['originalImage']){        
+      $originalImage = products_image::where('product_id', $product->id)->where('isMain', 1)->get();
+      if($originalImage[0]->src !== $images['originalImage']){        
         cleanMainImage($product->id); //清除原本ismain為1的圖片
         //如果沒有上傳主圖片，則使用原始圖片，ismain設為1
         saveProductImage($product->id, $images['originalImage'], 1);
@@ -283,6 +282,8 @@ Route::post('/product/update', function (Request $request) {
         $dbSecondaryImage->delete(); // 刪除資料庫記錄
       }
     }
+
+    $imageNames = [];
 
     // 新副圖片
     if ($request->hasFile('images')) {
