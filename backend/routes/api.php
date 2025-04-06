@@ -312,7 +312,7 @@ Route::post('/product/update', function (Request $request) {
 function cleanMainImage($productId)
 {
   //原本ismain為1的圖片設為0
-  $dbMainImage = products_image::where('product_id', $productId)->where('isMain', 1);
+  $dbMainImage = products_image::where('product_id', $productId)->where('isMain', 1)->first();
   if ($dbMainImage) {
     $dbMainImage->isMain = 0;
     $dbMainImage->save();
