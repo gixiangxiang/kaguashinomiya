@@ -343,3 +343,29 @@ function nullOrEmptyString($str)
 
 
 #endregion
+
+#region 刪除商品
+//刪除商品
+Route::delete('/product/delete/{id}', function ($id) {
+  try {
+    $product = product::find($id);
+    if (!$product) {
+      return response('Product not found', 404);
+    }
+    // 刪除圖片
+    $images = products_image::where('product_id', $id)->get();
+    foreach ($images as $image) {
+      $imagePath = public_path('images/' . $image->src);
+      if (file_exists($imagePath)) {
+        unlink($imagePath); // 刪除實體檔案
+      }
+      $image->delete(); // 刪除資料庫記錄
+    }
+    // 刪除商品
+    $product->delete();
+    return response('Product deleted successed', 200);
+  } catch (\Exception $e) {
+    return response('Product deleted failed:' . $e, 500);
+  }
+});
+#endregion
