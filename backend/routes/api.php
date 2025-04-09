@@ -254,6 +254,7 @@ Route::post('/product/update', function (Request $request) {
     //主圖片處裡
     if ($request->file('mainImage')) {
       //如果有上傳主圖片，則先清除原本ismain為1的圖片，再新增
+      cleanMainImage($product->id); //清除原本ismain為1的圖片
       $currentId = $lastId + 1;
       $mainImage = $request->file('mainImage');
       $mainImageName = date('YmdHis') . "_$currentId." . $mainImage->extension();
