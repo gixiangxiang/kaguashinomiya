@@ -253,6 +253,7 @@ Route::post('/product/update', function (Request $request) {
 
     //主圖片處裡
     if ($request->file('mainImage')) {
+      //如果有上傳主圖片，則先清除原本ismain為1的圖片，再新增
       $currentId = $lastId + 1;
       $mainImage = $request->file('mainImage');
       $mainImageName = date('YmdHis') . "_$currentId." . $mainImage->extension();
@@ -263,8 +264,13 @@ Route::post('/product/update', function (Request $request) {
       $originalImage = products_image::where('product_id', $product->id)->where('isMain', 1)->get();
       if($originalImage[0]->src !== $images['originalImage']){        
         cleanMainImage($product->id); //清除原本ismain為1的圖片
-        //如果沒有上傳主圖片，則使用原始圖片，ismain設為1
-        saveProductImage($product->id, $images['originalImage'], 1);
+        //將originalImage的圖片設為ismain=1
+        $dbMainImage = products_image::where('product_id', $product->id)->where('src', $images['originalImage'])->first();
+        if ($dbMainImage) {
+          $dbMainImage->isMain = 1;
+          $dbMainImage->save();
+        }
+        
       }
     }
 
