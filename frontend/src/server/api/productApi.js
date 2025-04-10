@@ -17,6 +17,14 @@ const processProductImages = (product) => {
   return product
 }
 
+const handleError = (error) => {
+  console.error('刪除產品時發生錯誤:', error)
+  if (error.response) {
+    console.error('回應狀態:', error.response.status)
+    console.error('回應資料:', error.response.data)
+  }
+}
+
 apiClient.interceptors.response.use((response) => {
   if (response.data) {
     if (response.data.product) {
@@ -43,6 +51,7 @@ export const productApi = {
       const response = await apiClient.get('/api/api/products-json/all')
       return response.data.products
     } catch (error) {
+      handleError(error)
       throw error
     }
   },
@@ -57,6 +66,7 @@ export const productApi = {
       })
       return response.data.products
     } catch (error) {
+      handleError(error)
       throw error
     }
   },
@@ -88,6 +98,7 @@ export const productApi = {
       })
       return response.data
     } catch (error) {
+      handleError(error)
       throw error
     }
   },
@@ -132,7 +143,7 @@ export const productApi = {
       // 處理新上傳的副圖檔案
       const newOtherImages = otherImages.filter((img) => img.file)
       newOtherImages.forEach((img, index) => {
-        formData.append(`newImages[${index}]`, img.file)
+        formData.append(`images[${index}]`, img.file)
       })
 
       const response = await apiClient.post('/api/api/product/update', formData, {
@@ -140,11 +151,17 @@ export const productApi = {
       })
       return response.data
     } catch (error) {
-      console.error('更新產品時發生錯誤:', error)
-      if (error.response) {
-        console.error('回應狀態:', error.response.status)
-        console.error('回應資料:', error.response.data)
-      }
+      handleError(error)
+      throw error
+    }
+  },
+
+  deleteProduct: async (id) => {
+    try {
+      const response = await apiClient.delete(`/api/api/product/delete/${id}`)
+      return response.data
+    } catch (error) {
+      handleError(error)
       throw error
     }
   },

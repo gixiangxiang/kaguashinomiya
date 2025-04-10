@@ -17,7 +17,7 @@
         <p class="product-price">NT$ {{ product.price.toLocaleString() }}</p>
         <div class="product-actions">
           <button class="edit-btn" @click.stop="editProduct(product)">編輯</button>
-          <button class="delete-btn">刪除</button>
+          <button class="delete-btn" @click.stop="deleteProduct(product.id)">刪除</button>
         </div>
       </li>
     </ul>
@@ -37,7 +37,7 @@ const props = defineProps({
 })
 
 // 聲明向父組件發出的事件
-const emit = defineEmits(['select-product', 'search', 'edit-product'])
+const emit = defineEmits(['select-product', 'search', 'edit-product', 'delete-product'])
 
 const isLoading = ref(false) // 是否載入中 (先預設為 false 等API測試再改為 true)
 
@@ -62,6 +62,10 @@ const selectProduct = (productId) => {
 
 const handleSearch = (keyword) => {
   emit('search', keyword)
+}
+
+const deleteProduct = (id) => {
+  emit('delete-product', id)
 }
 </script>
 

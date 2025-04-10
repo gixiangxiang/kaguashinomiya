@@ -6,6 +6,7 @@
     @select-product="changeSelectedProduct"
     @search="handleSearch"
     @edit-product="handleEditProduct"
+    @delete-product="handleDeleteProduct"
   />
   <ProductEditor
     @submit-product="handleAddProduct"
@@ -106,6 +107,15 @@ const handleUpdateProduct = async (updatedProduct) => {
     console.error(`編輯產品失敗：${err}`)
   } finally {
     isLoading.value = false
+  }
+}
+
+const handleDeleteProduct = async (productId) => {
+  try {
+    await productApi.deleteProduct(productId)
+    await fetchAllProducts()
+  } catch (err) {
+    console.error(`刪除產品失敗：${err}`)
   }
 }
 

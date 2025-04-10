@@ -5,7 +5,7 @@
       <img :src="currentImage" :alt="product.name" class="main-image" />
       <div class="thumbnail-gallery">
         <img
-          v-for="image in product.images"
+          v-for="image in sortedImages"
           :key="image.id"
           :src="image.src"
           :alt="image.alt"
@@ -62,12 +62,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 
 // 聲明接收的 props
 const props = defineProps({
   product: {
-    type: Array,
+    type: Object,
     required: true,
   },
 })
@@ -75,6 +75,17 @@ const props = defineProps({
 const currentImage = ref(``) // 當前顯示的主圖
 const selectedSize = ref(``) // 選中的尺寸
 const selectedColor = ref(``) // 選中的顏色
+
+// 排序後的圖片，使主圖始終在第一位
+const sortedImages = computed(() => {
+  const imagesCopy = [...props.product.images]
+
+  return imagesCopy.sort((a, b) => {
+    if (a.isMain && !b.isMain) return -1
+    if (!a.isMain && b.isMain) return 1
+    return 0
+  })
+})
 
 // 初始化-預設顯示主圖
 const initMainImage = () => {
