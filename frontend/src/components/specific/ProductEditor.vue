@@ -210,6 +210,11 @@ watch(
       toastShow('success', props.editMode ? '商品編輯成功' : '商品新增成功')
 
       showEditor.value = false
+
+      // 編輯成功時發送取消編輯模式
+      if (props.editMode) {
+        emit('cancel-edit')
+      }
     } else {
       toastShow('error', props.editMode ? '商品編輯失敗' : '商品新增失敗')
     }
