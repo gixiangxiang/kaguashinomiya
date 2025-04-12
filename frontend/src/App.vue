@@ -1,9 +1,13 @@
 <template>
-  <KaguyaShinomiya />
+  <div class="app">
+    <Header />
+    <router-view />
+  </div>
+  <Home />
 </template>
 
 <script setup>
-import KaguyaShinomiya from '@/views/KaguyaShinomiya.vue'
+import Header from '@/components/Header.vue'
 </script>
 
 <style scoped></style>
