@@ -207,6 +207,10 @@ watch(
   line-height: 1.5;
   color: #2d3748;
   margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 1.45rem;
+  }
 }
 
 // 價格區域

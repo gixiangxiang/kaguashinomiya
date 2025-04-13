@@ -40,6 +40,21 @@ const increase = () => {
   justify-content: center;
   gap: 10px;
 
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    justify-content: flex-end;
+
+    .quntity-btn {
+      width: 36px;
+      height: 36px;
+    }
+
+    .quantity {
+      min-width: 40px;
+      font-size: 1.1rem;
+    }
+  }
+
   .quntity-btn {
     cursor: pointer;
     width: 30px;

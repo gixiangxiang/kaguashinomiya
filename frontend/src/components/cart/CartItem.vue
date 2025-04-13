@@ -70,6 +70,63 @@ const remove = () => {
   padding: 15px 20px;
   border-bottom: 1px solid #e2e8f0;
 
+  // 手機版響應式設計
+  @media screen and (max-width: 768px) {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'info'
+      'price'
+      'quantity'
+      'total'
+      'action';
+    gap: 15px;
+    padding: 20px;
+
+    .product-info {
+      grid-area: info;
+      justify-content: flex-start;
+    }
+
+    .product-price {
+      grid-area: price;
+      justify-content: space-between;
+      &::before {
+        content: '單價:';
+        font-weight: 400;
+        color: #718096;
+      }
+    }
+
+    .product-quantity {
+      grid-area: quantity;
+      justify-content: space-between;
+      &::before {
+        content: '數量:';
+        font-weight: 400;
+        color: #718096;
+      }
+    }
+
+    .product-total {
+      grid-area: total;
+      justify-content: space-between;
+      &::before {
+        content: '小計:';
+        font-weight: 400;
+        color: #718096;
+      }
+    }
+
+    .product-action {
+      grid-area: action;
+      justify-content: flex-end;
+      .remove-btn {
+        font-size: 1.5rem;
+        padding: 10px;
+      }
+    }
+  }
+
   .product-info {
     display: flex;
     align-items: center;

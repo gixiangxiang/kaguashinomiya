@@ -1,4 +1,5 @@
 <template>
+  <ToastMessage :toast="toast" />
   <main class="shopping-cart">
     <div class="cart-header">
       <h1>我的購物車</h1>
@@ -43,6 +44,7 @@
 </template>
 
 <script setup>
+import ToastMessage from '@/components/ToastMessage.vue'
 import EmptyCart from '@/components/cart/EmptyCart.vue'
 import CartItem from '@/components/cart/CartItem.vue'
 import CartSummary from '@/components/cart/CartSummary.vue'
@@ -75,6 +77,12 @@ const cartItems = ref([
   },
 ])
 
+const toast = ref({
+  show: false,
+  type: '',
+  message: '',
+})
+
 const goToHome = () => {
   router.push({
     name: 'Home',
@@ -97,6 +105,18 @@ const totalItem = computed(() => {
 const totalPrice = computed(() => {
   return cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
 })
+
+const onShowToBeContinued = () => {
+  toast.value = {
+    show: true,
+    type: 'success',
+    message: 'To Be Continued...',
+  }
+
+  setTimeout(() => {
+    toast.value.show = false
+  }, 3000)
+}
 </script>
 
 <style lang="scss" scoped>
@@ -105,6 +125,10 @@ const totalPrice = computed(() => {
 .shopping-cart {
   max-width: 1200px;
   margin: 100px auto 40px; // 上方留出 Header 的空間
+
+  @media screen and (max-width: 768px) {
+    margin: 80px auto 30px;
+  }
 }
 
 .cart-header {
@@ -137,13 +161,27 @@ const totalPrice = computed(() => {
       transform: translateX(-3px);
     }
   }
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 20px;
+    gap: 15px;
+
+    h1 {
+      font-size: 1.3rem;
+    }
+
+    .continue-shopping {
+      align-self: flex-start;
+    }
+  }
 }
 
 .cart-container {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 0 8px 1px #00000007;
-  // overflow: hidden;
 }
 
 .cart-item-header {
@@ -163,6 +201,10 @@ const totalPrice = computed(() => {
 
   .product-info {
     text-align: center;
+  }
+
+  @media screen and (max-width: 768px) {
+    display: none; // 在手機上隱藏表頭，使用偽元素替代
   }
 }
 </style>
