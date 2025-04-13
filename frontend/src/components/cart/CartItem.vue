@@ -39,6 +39,8 @@
 
 <script setup>
 import QuantitySelector from '@/components/QuantitySelector.vue'
+import { useMillimeters } from '@/composable/useMillimeters.js'
+const { millimeters } = useMillimeters()
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -53,10 +55,6 @@ const emit = defineEmits(['remove'])
 const totalPrice = computed(() => {
   return props.product.price * props.product.quantity
 })
-
-const millimeters = (num) => {
-  return String(num).replace(/(\d)(?=(\d{3})+$)/g, '$1,')
-}
 
 const remove = () => {
   emit('remove-product', props.product.id)
