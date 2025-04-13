@@ -1,5 +1,4 @@
 <template>
-  <Header />
   <ProductDisplay v-if="selectedProduct" :product="selectedProduct" />
   <ProductList
     :products="products"
@@ -20,10 +19,9 @@
 </template>
 
 <script setup>
-import Header from '@/components/Header.vue'
-import ProductDisplay from '@/components/specific/ProductDisplay.vue'
-import ProductList from '@/components/specific/ProductList.vue'
-import ProductEditor from '../components/specific/ProductEditor.vue'
+import ProductDisplay from '@/components/product/ProductDisplay.vue'
+import ProductList from '@/components/product/ProductList.vue'
+import ProductEditor from '@/components/product/ProductEditor.vue'
 import { productApi } from '../server/api/productApi'
 
 import { ref, computed, onMounted } from 'vue'

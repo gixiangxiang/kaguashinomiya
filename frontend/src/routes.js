@@ -9,7 +9,7 @@ const routes = [
   {
     path: '/cart',
     name: 'ShoopingCart',
-    component: () => import('./views/ShoopingCart.vue'),
+    component: () => import('./views/ShoppingCart.vue'),
   },
 ]
 
