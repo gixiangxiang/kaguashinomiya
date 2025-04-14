@@ -28,6 +28,7 @@
 import ProductDisplay from '@/components/product/ProductDisplay.vue'
 import ProductList from '@/components/product/ProductList.vue'
 import ProductEditor from '@/components/product/ProductEditor.vue'
+import ToastMessage from '@/components/ToastMessage.vue'
 import { productApi } from '../server/api/productApi'
 
 import { ref, computed, onMounted } from 'vue'
