@@ -44,7 +44,7 @@ const toast = ref({
   message: '',
 })
 
-handleAddToCart = async (cartItem) => {
+const handleAddToCart = async (cartItem) => {
   try {
     //  API 添加商品到購物車會在這裡
 
