@@ -1,11 +1,17 @@
 <template>
-  <ProductDisplay v-if="selectedProduct" :product="selectedProduct" />
+  <ToastMessage :toast="toast" />
+  <ProductDisplay
+    v-if="selectedProduct"
+    :product="selectedProduct"
+    @add-to-cart="handleAddToCart"
+  />
   <ProductList
     :products="products"
     @select-product="changeSelectedProduct"
     @search="handleSearch"
     @edit-product="handleEditProduct"
     @delete-product="handleDeleteProduct"
+    @add-to-cart="handleAddToCart"
   />
   <ProductEditor
     @submit-product="handleAddProduct"
@@ -32,6 +38,39 @@ const lastSubmitResult = ref(null)
 const selectedProductId = ref(null) // 默認選中的產品 ID
 const editMode = ref(false) // 編輯模式開關
 const productToEdit = ref(null) // 編輯的產品數據
+const toast = ref({
+  show: false,
+  type: 'success',
+  message: '',
+})
+
+handleAddToCart = async (cartItem) => {
+  try {
+    //  API 添加商品到購物車會在這裡
+
+    // 模擬請求失敗 20%機率失敗
+    // const randomFail = Math.random() < 0.2
+    // if (randomFail) {
+    // throw new Error('模擬加入購物車失敗')
+    // }
+
+    // 這裡可以添加購物車狀態管理的邏輯
+    // 例如將商品添加到本地購物車狀態中
+
+    // 顯示成功提示
+    toast.value = {
+      show: true,
+      type: 'success',
+      message: '已成功加入購物車！',
+    }
+  } catch (error) {
+    console.error(`加入購物車失敗：${error}`)
+  } finally {
+    setTimeout(() => {
+      toast.value.show = false
+    }, 3000)
+  }
+}
 
 const handleEditProduct = (product) => {
   editMode.value = true

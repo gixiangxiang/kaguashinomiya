@@ -1,5 +1,5 @@
 <template>
-  <div class="product-quantity">
+  <div class="product-quantity" :class="{ 'align-left': alignLeft }">
     <button class="quntity-btn" @click="decrease" :disabled="quantity <= min">-</button>
     <span class="quantity">{{ quantity }}</span>
     <button class="quntity-btn" @click="increase" :disabled="quantity >= max">+</button>
@@ -15,6 +15,10 @@ const props = defineProps({
   min: {
     type: Number,
     default: 1,
+  },
+  alignLeft: {
+    type: Boolean,
+    default: false,
   },
 })
 
@@ -50,7 +54,6 @@ const increase = () => {
     }
 
     .quantity {
-      min-width: 40px;
       font-size: 1.1rem;
     }
   }
@@ -67,6 +70,10 @@ const increase = () => {
     &:hover {
       background-color: #f8f9fa;
     }
+  }
+
+  &.align-left {
+    justify-content: flex-start; // 添加一個靠左的類
   }
 }
 </style>

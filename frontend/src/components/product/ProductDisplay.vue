@@ -53,6 +53,18 @@
         </div>
       </div>
 
+      <div class="add-to-cart-section">
+        <div class="quantity-area">
+          <h3>數量</h3>
+          <QuantitySelector v-model="quantity" :min="1" :max="99" :alignLeft="true" />
+        </div>
+
+        <button class="add-to-cart-btn" @click="addToCart" :disabled="!canAddToCart">
+          <i class="bx bx-cart-add"></i>
+          加入購物車
+        </button>
+      </div>
+
       <div class="product-description">
         <h3>商品介紹</h3>
         <p>{{ product.description }}</p>
@@ -62,6 +74,8 @@
 </template>
 
 <script setup>
+import QuantitySelector from '@/components/QuantitySelector.vue'
+import { useDebounce } from '@/composable/useDebounce.js'
 import { ref, onMounted, watch, computed } from 'vue'
 
 // 聲明接收的 props
@@ -72,9 +86,12 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['add-to-cart'])
+
 const currentImage = ref(``) // 當前顯示的主圖
 const selectedSize = ref(``) // 選中的尺寸
 const selectedColor = ref(``) // 選中的顏色
+const quantity = ref(1) // 選擇的數量
 
 // 排序後的圖片，使主圖始終在第一位
 const sortedImages = computed(() => {
@@ -109,6 +126,35 @@ const selectSize = (size) => {
 const selectColor = (color) => {
   selectedColor.value = color
 }
+
+// 檢查是否可以加入購物車
+const canAddToCart = computed(() => {
+  return selectedSize.value && selectedColor.value && quantity.value > 0 && quantity.value <= 99
+})
+
+const { debounce } = useDebounce()
+
+// 加入購物車
+const rawAddToCart = () => {
+  if (!canAddToCart.value) return
+
+  // 收集商品資訊並發送事件
+  const cartItem = {
+    id: props.product.id,
+    name: props.product.name,
+    price: props.product.price,
+    quantity: quantity.value,
+    imageUrl: sortedImages.value[0].src,
+    options: {
+      size: selectedSize.value,
+      color: selectedColor.value,
+    },
+  }
+
+  emit('add-to-cart', cartItem)
+}
+
+const addToCart = debounce(rawAddToCart, 500)
 
 // 初始化時設置主圖
 onMounted(() => {
@@ -297,6 +343,58 @@ watch(
           0 0 0 2px #fff,
           0 0 0 4px #8c6d62;
       }
+    }
+  }
+}
+
+// 加入購物車區
+.add-to-cart-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .quantity-area {
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+      color: #4a5568;
+    }
+  }
+
+  .add-to-cart-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #8c6d62;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    height: 48px;
+
+    i {
+      font-size: 1.2rem;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: #7a5e54;
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      background-color: #e2e8f0;
+      color: #a0aec0;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+      width: 100%;
     }
   }
 }
