@@ -76,7 +76,10 @@
 <script setup>
 import QuantitySelector from '@/components/QuantitySelector.vue'
 import { useDebounce } from '@/composable/useDebounce.js'
+import { useCartStore } from '@/stores/cart.js'
 import { ref, onMounted, watch, computed } from 'vue'
+
+const cartStore = useCartStore()
 
 // 聲明接收的 props
 const props = defineProps({
@@ -138,18 +141,20 @@ const { debounce } = useDebounce()
 const rawAddToCart = () => {
   if (!canAddToCart.value) return
 
+  const mainImageUrl = props.product.images.find((img) => img.isMain)?.src || currentImage.value
+
   // 收集商品資訊並發送事件
   const cartItem = {
     id: props.product.id,
     name: props.product.name,
     price: props.product.price,
     quantity: quantity.value,
-    imageUrl: sortedImages.value[0].src,
-    options: {
-      size: selectedSize.value,
-      color: selectedColor.value,
-    },
+    image: mainImageUrl,
+    selectedSize: selectedSize.value,
+    selectedColor: selectedColor.value,
   }
+
+  cartStore.addToCart(cartItem, quantity.value, selectedSize.value, selectedColor.value)
 
   emit('add-to-cart', cartItem)
 }

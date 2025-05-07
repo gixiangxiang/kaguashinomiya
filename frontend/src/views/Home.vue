@@ -55,9 +55,6 @@ const handleAddToCart = async (cartItem) => {
     // throw new Error('模擬加入購物車失敗')
     // }
 
-    // 這裡可以添加購物車狀態管理的邏輯
-    // 例如將商品添加到本地購物車狀態中
-
     // 顯示成功提示
     toast.value = {
       show: true,
@@ -87,7 +84,7 @@ const fetchAllProducts = async () => {
   try {
     const data = await productApi.getAllProducts()
     products.value = data
-    selectedProductId.value = data[0]?.id
+    selectedProductId.value = data[0]?.id // 如果有產品，選中第一個產品
   } catch (err) {
     console.error(`獲取產品失敗:${err}`)
   }

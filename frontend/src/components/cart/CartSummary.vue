@@ -2,11 +2,11 @@
   <div class="cart-summary">
     <div class="summary-row">
       <span>商品總數：</span>
-      <span>{{ totalItem }} 件</span>
+      <span>{{ cartStore.totalItems }} 件</span>
     </div>
     <div class="summary-row">
       <span>總金額：</span>
-      <span class="total-price">NT$ {{ millimeters(totalPrice) }}</span>
+      <span class="total-price">NT$ {{ millimeters(cartStore.totalPrice) }}</span>
     </div>
     <button class="checkout-btn" @click="showToBeContinued">
       前往結帳<i class="bx bx-right-arrow-alt"></i>
@@ -16,18 +16,10 @@
 
 <script setup>
 import { useMillimeters } from '@/composable/useMillimeters.js'
-const { millimeters } = useMillimeters()
+import { useCartStore } from '@/stores/cart.js'
 
-const props = defineProps({
-  totalItem: {
-    type: Number,
-    required: true,
-  },
-  totalPrice: {
-    type: Number,
-    required: true,
-  },
-})
+const cartStore = useCartStore()
+const { millimeters } = useMillimeters()
 
 const emit = defineEmits(['showToBeContinued'])
 

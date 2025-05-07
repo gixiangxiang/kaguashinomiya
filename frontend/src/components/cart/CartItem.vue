@@ -2,18 +2,18 @@
   <div class="cart-item">
     <!-- 資訊 -->
     <div class="product-info">
-      <img :src="`http://${product.imageUrl}`" :alt="product.name" />
+      <img :src="product.image" :alt="product.name" />
       <div class="product-details">
         <h3>{{ product.name }}</h3>
         <div class="product-options">
           <div class="option">
             <span class="option-label">尺寸:</span>
-            <span class="option-value size">{{ product.options.size }}</span>
+            <span class="option-value size">{{ product.selectedSize }}</span>
           </div>
 
           <div class="option">
             <span class="option-label">顏色:</span>
-            <span class="color-dot" :style="`background-color: ${product.options.color}`"></span>
+            <span class="color-dot" :style="`background-color: ${product.selectedColor}`"></span>
           </div>
         </div>
       </div>
@@ -23,14 +23,14 @@
     <div class="product-price">NT${{ millimeters(product.price) }}</div>
 
     <!-- 數量 -->
-    <QuantitySelector :min="1" :max="99" v-model="product.quantity" />
+    <QuantitySelector :min="1" :max="99" v-model="localQuantity" />
 
     <!-- 小計 -->
-    <div class="product-total">NT$ {{ millimeters(totalPrice) }}</div>
+    <div class="product-total">NT$ {{ millimeters(product.price * product.quantity) }}</div>
 
     <!-- 操作 -->
     <div class="product-action">
-      <button class="remove-btn" @click="remove">
+      <button class="remove-btn" @click="removeItem">
         <i class="bx bx-trash"></i>
       </button>
     </div>
@@ -40,24 +40,47 @@
 <script setup>
 import QuantitySelector from '@/components/QuantitySelector.vue'
 import { useMillimeters } from '@/composable/useMillimeters.js'
+import { useCartStore } from '@/stores/cart.js'
+import { ref, watch } from 'vue'
+
 const { millimeters } = useMillimeters()
-import { computed } from 'vue'
+const cartStore = useCartStore()
+
+const emit = defineEmits(['remove-product'])
 
 const props = defineProps({
   product: {
     type: Object,
-    default: () => ({}),
+    required: true,
   },
 })
 
-const emit = defineEmits(['remove'])
+const localQuantity = ref(props.product.quantity)
 
-const totalPrice = computed(() => {
-  return props.product.price * props.product.quantity
+// 監聽本地數量變更 調用 Pinia action
+watch(localQuantity, (newValue) => {
+  if (newValue !== props.product.quantity) {
+    cartStore.updateQuantity(
+      props.product.id,
+      newValue,
+      props.product.selectedSize,
+      props.product.selectedColor
+    )
+  }
 })
 
-const remove = () => {
-  emit('remove-product', props.product.id)
+// 監聽數量變化 保持同步
+watch(
+  () => props.product.quantity,
+  (newValue) => {
+    if (newValue !== localQuantity.value) {
+      localQuantity.value = newValue
+    }
+  }
+)
+
+const removeItem = () => {
+  emit('remove-product', props.product.id, props.product.selectedSize, props.product.selectedColor)
 }
 </script>
 

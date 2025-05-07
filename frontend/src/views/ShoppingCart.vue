@@ -10,7 +10,7 @@
     </div>
 
     <!-- 購物車為空的顯示 -->
-    <EmptyCart v-if="!cartItems.length" @shop-now="goToHome" />
+    <EmptyCart v-if="!cartStore.items.length" @shop-now="goToHome" />
 
     <!-- 購物車產品列表 -->
     <div class="cart-container" v-else>
@@ -26,19 +26,15 @@
       <!-- 購物車列表 -->
       <div class="cart-items">
         <CartItem
-          v-for="item in cartItems"
+          v-for="item in cartStore.items"
           :key="item.id"
           :product="item"
-          @remove-product="removeFromCart"
+          @remove-product="cartStore.removeFromCart"
         />
       </div>
 
       <!-- 購物車摘要區域 -->
-      <CartSummary
-        :totalItem="totalItem"
-        :totalPrice="totalPrice"
-        @showToBeContinued="onShowToBeContinued"
-      />
+      <CartSummary @showToBeContinued="onShowToBeContinued" />
     </div>
   </main>
 </template>
@@ -49,33 +45,11 @@ import EmptyCart from '@/components/cart/EmptyCart.vue'
 import CartItem from '@/components/cart/CartItem.vue'
 import CartSummary from '@/components/cart/CartSummary.vue'
 import { useRouter } from 'vue-router'
+import { useCartStore } from '@/stores/cart.js'
 import { ref, computed } from 'vue'
-const router = useRouter()
 
-const cartItems = ref([
-  {
-    id: 1,
-    name: '『進撃の巨人』 The Final Season 完結編 ミカサモチーフカシミアマフラー',
-    price: 1790,
-    quantity: 2,
-    imageUrl: 'localhost:8000/images/20250413044457_1.webp',
-    options: {
-      size: 'M',
-      color: '#952639',
-    },
-  },
-  {
-    id: 2,
-    name: '『進撃の巨人』The Final Season キャラモチーフフェアアイル柄ニット',
-    price: 3330,
-    quantity: 1,
-    imageUrl: 'localhost:8000/images/20250413004614_6.webp',
-    options: {
-      size: 'L',
-      color: '#FFFFFF',
-    },
-  },
-])
+const router = useRouter()
+const cartStore = useCartStore()
 
 const toast = ref({
   show: false,
@@ -88,23 +62,6 @@ const goToHome = () => {
     name: 'Home',
   })
 }
-
-const removeFromCart = (id) => {
-  // 先找到正確的索引位置
-  const index = cartItems.value.findIndex((item) => item.id === id)
-
-  if (index !== -1) {
-    cartItems.value.splice(index, 1) // 然後從陣列中刪除該元素
-  }
-}
-
-const totalItem = computed(() => {
-  return cartItems.value.reduce((sum, item) => sum + item.quantity, 0)
-})
-
-const totalPrice = computed(() => {
-  return cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
-})
 
 const onShowToBeContinued = () => {
   toast.value = {
