@@ -4,7 +4,6 @@ const apiClient = axios.create()
 
 // 獲取環境變數中的圖片基礎URL
 const imageBaseUrl = import.meta.env.VITE_IMAGE_BASE_URL
-
 // 處理產品圖片路徑的函數
 const processProductImages = (product) => {
   if (product && product.images && Array.isArray(product.images)) {

@@ -3,8 +3,8 @@ export function useDebounce() {
     let debounceTimer
 
     return (...args) => {
-      clearTimeout(debounceTimer)
-      setTimeout(() => {
+      clearTimeout(debounceTimer) // 清除前一次的定時器
+      debounceTimer = setTimeout(() => {
         fn(...args)
       }, delay)
     }

@@ -100,7 +100,7 @@ import ToastMessage from '../ToastMessage.vue'
 import ImageUploader from '../ImageUploader.vue'
 import { reactive, ref, watch } from 'vue'
 
-const emit = defineEmits(['submit-product', 'update-product'])
+const emit = defineEmits(['submit-product', 'update-product', 'cancelEdit'])
 
 const props = defineProps({
   isLoading: {

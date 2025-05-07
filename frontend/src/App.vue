@@ -3,7 +3,6 @@
     <Header />
     <router-view />
   </div>
-  <Home />
 </template>
 
 <script setup>
