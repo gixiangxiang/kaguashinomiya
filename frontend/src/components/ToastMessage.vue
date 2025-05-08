@@ -13,6 +13,11 @@
 const props = defineProps({
   toast: {
     type: Object,
+    default: () => ({
+      show: false,
+      message: '',
+      type: 'success',
+    }),
   },
 })
 </script>
@@ -27,10 +32,13 @@ const props = defineProps({
   min-width: 300px;
   pointer-events: none;
 
+  // 手機版基礎樣式
   @media screen and (max-width: 768px) {
-    top: 30px;
-    right: 50%;
-    transform: translateX(50%);
+    bottom: auto; // 取消底部定位
+    left: auto; // 取消左側定位
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .toast-content {
@@ -40,7 +48,7 @@ const props = defineProps({
     padding: 16px;
     border-radius: 8px;
     border: 1px solid;
-    box-shadow: 0 0 10px 5px #00000016;
+    box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.08);
 
     &.success {
       border-color: #52c41a;
@@ -65,7 +73,7 @@ const props = defineProps({
   }
 }
 
-// 桌面版動畫 (從右側滑入，向右側滑出)
+// 桌面版動畫 (從左側滑入，向左側滑出)
 .toast-enter-from {
   opacity: 0;
   transform: translateX(-350px);
@@ -85,12 +93,17 @@ const props = defineProps({
 @media screen and (max-width: 768px) {
   .toast-enter-from {
     opacity: 0;
-    transform: translate(50%, -50px);
+    transform: translateX(-50%) translateY(-80px);
+  }
+
+  .toast-enter-active,
+  .toast-leave-active {
+    transition: all 0.4s ease-in-out;
   }
 
   .toast-leave-to {
     opacity: 0;
-    transform: translate(50%, -50px);
+    transform: translateX(-50%) translateY(-80px);
   }
 }
 </style>
