@@ -25,12 +25,7 @@
 
       <!-- 購物車列表 -->
       <div class="cart-items">
-        <CartItem
-          v-for="item in cartStore.items"
-          :key="item.id"
-          :product="item"
-          @remove-product="cartStore.removeFromCart"
-        />
+        <CartItem v-for="item in cartStore.items" :key="item.id" :product="item" />
       </div>
 
       <!-- 購物車摘要區域 -->

@@ -46,8 +46,6 @@ import { ref, watch } from 'vue'
 const { millimeters } = useMillimeters()
 const cartStore = useCartStore()
 
-const emit = defineEmits(['remove-product'])
-
 const props = defineProps({
   product: {
     type: Object,
@@ -58,6 +56,7 @@ const props = defineProps({
 const localQuantity = ref(props.product.quantity)
 
 // 監聽本地數量變更 調用 Pinia action
+// UI => Store
 watch(localQuantity, (newValue) => {
   if (newValue !== props.product.quantity) {
     cartStore.updateQuantity(
@@ -69,7 +68,8 @@ watch(localQuantity, (newValue) => {
   }
 })
 
-// 監聽數量變化 保持同步
+// 監聽數量變化 如果未來有其他組件也可以修改同一商品的數量 保持同步
+// Store => UI
 watch(
   () => props.product.quantity,
   (newValue) => {
@@ -80,7 +80,11 @@ watch(
 )
 
 const removeItem = () => {
-  emit('remove-product', props.product.id, props.product.selectedSize, props.product.selectedColor)
+  cartStore.removeFromCart(
+    props.product.id,
+    props.product.selectedSize,
+    props.product.selectedColor
+  )
 }
 </script>
 
