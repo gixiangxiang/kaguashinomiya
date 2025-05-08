@@ -21,8 +21,8 @@ const props = defineProps({
 .toast {
   position: fixed;
   z-index: 9999;
-  top: 30px;
-  right: 30px;
+  bottom: 30px;
+  left: 30px;
   max-width: 350px;
   min-width: 300px;
   pointer-events: none;
@@ -68,7 +68,7 @@ const props = defineProps({
 // 桌面版動畫 (從右側滑入，向右側滑出)
 .toast-enter-from {
   opacity: 0;
-  transform: translateX(350px);
+  transform: translateX(-350px);
 }
 
 .toast-enter-active,
@@ -78,7 +78,7 @@ const props = defineProps({
 
 .toast-leave-to {
   opacity: 0;
-  transform: translateX(350px);
+  transform: translateX(-350px);
 }
 
 // 手機版動畫 (從上往下移動進入，往上移動離開)
