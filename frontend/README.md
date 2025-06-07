@@ -74,9 +74,7 @@ frontend/
 - [`SizePicker`](src/components/SizePicker.vue) - 尺寸選擇器
 - [`ImageUploader`](src/components/ImageUploader.vue) - 圖片上傳組件
 
-### 組件設計原則
-
-#### 1. 單一職責原則
+### 組件設計單一職責原則
 
 每個組件都有明確的單一功能，例如：
 
